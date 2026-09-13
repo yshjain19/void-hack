@@ -1,0 +1,12 @@
+{
+  "python.defaultInterpreterPath": "C:\\Users\\yshja\\OneDrive\\Desktop\\void hack\\backend\\.venv\\Scripts\\python.exe",
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}",
+    "C:\\Users\\yshja\\OneDrive\\Desktop\\void hack\\backend"
+  ],
+  "python.autoComplete.extraPaths": [
+    "${workspaceFolder}",
+    "C:\\Users\\yshja\\OneDrive\\Desktop\\void hack\\backend"
+  ],
+  "python.terminal.activateEnvironment": true
+}
