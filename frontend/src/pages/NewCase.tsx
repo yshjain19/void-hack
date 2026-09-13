@@ -12,6 +12,7 @@ export default function NewCase() {
   const { setActiveCase } = useCase()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [offlineFallback, setOfflineFallback] = useState<{ id: string; title: string } | null>(null)
 
   const [form, setForm] = useState({
     title: '',
@@ -28,15 +29,27 @@ export default function NewCase() {
     if (!form.title.trim()) return
     setLoading(true)
     setError(null)
+    setOfflineFallback(null)
     try {
       const res = await casesApi.create(form)
       setActiveCase(res.data.id, res.data.title || form.title)
       navigate(`/cases/${res.data.id}`)
     } catch (err: any) {
-      setError(err?.response?.data?.detail || 'Failed to create case')
+      const fallbackId = `case-${Date.now().toString(36)}`
+      setOfflineFallback({ id: fallbackId, title: form.title })
+      setError(
+        err?.response?.data?.detail ||
+        'Unable to connect to backend server. You can proceed directly in offline/preview mode.'
+      )
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleProceedOffline = () => {
+    if (!offlineFallback) return
+    setActiveCase(offlineFallback.id, offlineFallback.title)
+    navigate(`/cases/${offlineFallback.id}`)
   }
 
   return (
@@ -135,8 +148,22 @@ export default function NewCase() {
         </div>
 
         {error && (
-          <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
-            {error}
+          <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-sm space-y-3">
+            <div className="flex items-start gap-2">
+              <span className="font-semibold text-red-400">Notice:</span>
+              <span>{error}</span>
+            </div>
+            {offlineFallback && (
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={handleProceedOffline}
+                  className="px-3 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-xs font-semibold text-red-200 transition-colors"
+                >
+                  Proceed with Demo / Local Case &rarr;
+                </button>
+              </div>
+            )}
           </div>
         )}
 
