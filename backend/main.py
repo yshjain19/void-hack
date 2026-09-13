@@ -28,8 +28,8 @@ app = FastAPI(
     description="AI-powered forensic fraud investigation platform",
     version="1.0.0",
     lifespan=lifespan,
-    docs_url="/api/docs",
-    redoc_url="/api/redoc",
+    docs_url="/docs",
+    redoc_url="/redoc",
 )
 
 # ─── CORS ────────────────────────────────────────────────────
@@ -48,6 +48,16 @@ app.include_router(graph.router, prefix="/api/graph", tags=["Graph"])
 app.include_router(analytics.router, prefix="/api/analytics", tags=["Analytics"])
 app.include_router(ai.router, prefix="/api/ai", tags=["AI"])
 app.include_router(reports.router, prefix="/api/reports", tags=["Reports"])
+
+
+@app.get("/", tags=["Root"])
+async def root():
+    return {
+        "service": "ForensIQ Backend API",
+        "version": "1.0.0",
+        "docs": "/docs",
+        "health": "/api/health",
+    }
 
 
 @app.get("/api/health", tags=["Health"])
