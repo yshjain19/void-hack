@@ -14,8 +14,8 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+/lib/
+/lib64/
 parts/
 sdist/
 var/
@@ -23,6 +23,10 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+
+# Ensure essential source directories are NOT ignored
+!frontend/src/lib/
+!backend/services/reports/
 
 # Node / Frontend
 node_modules/
@@ -33,12 +37,15 @@ dist/
 .env
 *.env.local
 
-# Databases and runtime data
+# Databases and runtime generated data
 *.db
 *.sqlite3
 *.sqlite
-uploads/
-reports/
+/uploads/
+backend/uploads/
+/reports/
+backend/reports/
+!backend/services/reports/
 
 # IDE / OS
 .DS_Store
