@@ -31,27 +31,27 @@ export default function ToolRedirect({ tool, title }: ToolRedirectProps) {
     }
   }
 
-  const Icon = getIcon()
+  const ToolIcon = getIcon()
 
   return (
-    <div className="max-w-xl mx-auto my-12 p-8 glass rounded-2xl text-center space-y-5 animate-slide-up">
-      <div className="w-14 h-14 rounded-2xl bg-brand-500/20 border border-brand-500/30 flex items-center justify-center text-brand-400 mx-auto">
-        <Icon className="w-7 h-7" />
+    <div className="max-w-xl mx-auto my-12 p-8 glass rounded-2xl text-center space-y-5 animate-slide-up border-zinc-200/90 shadow-sm">
+      <div className="w-14 h-14 rounded-2xl bg-red-50 border border-red-200 flex items-center justify-center text-red-600 mx-auto shadow-xs">
+        <ToolIcon className="w-7 h-7" />
       </div>
       <div>
-        <h2 className="text-xl font-bold text-white mb-2">{title}</h2>
-        <p className="text-slate-400 text-sm">
-          Please select or open an investigation case to utilize this forensic analysis tool.
+        <h2 className="text-xl font-extrabold text-zinc-950 mb-1.5">{title}</h2>
+        <p className="text-zinc-500 text-sm max-w-sm mx-auto">
+          Please select or register an active investigation case to utilize this forensic analysis capability.
         </p>
       </div>
       <div className="flex justify-center gap-3 pt-2">
         <button
           onClick={() => openCaseSelector({ label: title, path: `/${tool}` })}
-          className="btn-brand flex items-center gap-2"
+          className="btn-brand flex items-center gap-2 text-xs py-2 px-4 shadow-xs"
         >
-          <FolderOpen className="w-4 h-4" /> Select Case
+          <FolderOpen className="w-4 h-4" /> Select Investigation
         </button>
-        <Link to="/" className="btn-ghost flex items-center gap-2">
+        <Link to="/" className="btn-ghost flex items-center gap-2 text-xs py-2 px-4">
           <ArrowLeft className="w-4 h-4" /> Return to Dashboard
         </Link>
       </div>

@@ -18,11 +18,11 @@ function AppLayout() {
   const { mobileMenuOpen, setMobileMenuOpen } = useCase()
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-950 relative">
+    <div className="flex h-screen overflow-hidden bg-zinc-50 text-zinc-900 relative">
       {/* Mobile Drawer Backdrop */}
       {mobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden animate-fade-in"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden animate-fade-in"
           onClick={() => setMobileMenuOpen(false)}
           aria-hidden="true"
         />
@@ -34,7 +34,7 @@ function AppLayout() {
       {/* Main Content Area */}
       <div className="flex flex-col flex-1 overflow-hidden min-w-0">
         <Navbar />
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 animate-fade-in">
+        <main className="flex-1 overflow-y-auto p-3 sm:p-5 md:p-6 animate-fade-in bg-zinc-50">
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/cases" element={<CaseList />} />

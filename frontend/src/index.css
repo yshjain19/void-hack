@@ -6,15 +6,17 @@
 /* ── Base ──────────────────────────────────────────────────── */
 @layer base {
   :root {
-    --brand: 99 102 241;
-    --brand-dark: 79 70 229;
+    --brand: 220 38 38;
+    --brand-dark: 185 28 28;
+    --brand-light: 254 242 242;
     --danger: 239 68 68;
     --amber: 245 158 11;
     --emerald: 16 185 129;
+    --carbon: 9 9 11;
   }
 
   * {
-    @apply border-slate-700;
+    @apply border-zinc-200;
     box-sizing: border-box;
   }
 
@@ -23,12 +25,10 @@
   }
 
   body {
-    @apply bg-slate-950 text-slate-100 font-sans antialiased;
-    background-image: radial-gradient(
-      ellipse 80% 80% at 50% -20%,
-      rgba(79, 70, 229, 0.12),
-      transparent
-    );
+    @apply bg-zinc-50 text-zinc-900 font-sans antialiased;
+    background-image: 
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(220, 38, 38, 0.04), transparent),
+      radial-gradient(ellipse 60% 40% at 100% 100%, rgba(24, 24, 27, 0.02), transparent);
     min-height: 100vh;
   }
 
@@ -37,66 +37,75 @@
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    @apply bg-slate-900;
+    @apply bg-zinc-100;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-slate-600 rounded-full;
+    @apply bg-zinc-300 rounded-full;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-slate-500;
+    @apply bg-zinc-400;
   }
 }
 
 /* ── Components ─────────────────────────────────────────────── */
 @layer components {
-  /* Glass card */
+  /* Light theme glass card with crisp white surface and soft shadow */
   .glass {
-    @apply bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 rounded-xl;
+    @apply bg-white/95 backdrop-blur-xl border border-zinc-200/90 rounded-xl;
     box-shadow:
-      0 1px 0 0 rgba(255,255,255,0.05) inset,
-      0 4px 24px rgba(0,0,0,0.4);
+      0 1px 2px 0 rgba(0, 0, 0, 0.03),
+      0 4px 16px -2px rgba(0, 0, 0, 0.05);
   }
 
-  /* Brand glow button */
+  /* Red Brand action button */
   .btn-brand {
-    @apply bg-brand-600 hover:bg-brand-500 text-white font-semibold
+    @apply bg-red-600 hover:bg-red-700 text-white font-semibold
            px-4 py-2 rounded-lg transition-all duration-200
-           shadow-lg hover:shadow-brand-500/30 active:scale-95;
+           shadow-md shadow-red-600/25 active:scale-95;
   }
 
+  /* Dark Carbon button */
+  .btn-dark {
+    @apply bg-zinc-900 hover:bg-black text-white font-semibold
+           px-4 py-2 rounded-lg transition-all duration-200
+           shadow-sm active:scale-95;
+  }
+
+  /* Ghost/Secondary button */
   .btn-ghost {
-    @apply bg-slate-800/50 hover:bg-slate-700/70 text-slate-300 hover:text-white
-           font-medium px-4 py-2 rounded-lg transition-all duration-200 border border-slate-700/50;
+    @apply bg-zinc-100 hover:bg-zinc-200 text-zinc-800 hover:text-black
+           font-medium px-4 py-2 rounded-lg transition-all duration-200 border border-zinc-200/90;
   }
 
+  /* Danger button */
   .btn-danger {
-    @apply bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white
-           font-medium px-4 py-2 rounded-lg transition-all duration-200 border border-red-500/30;
+    @apply bg-red-50 hover:bg-red-100 text-red-700 hover:text-red-800
+           font-medium px-4 py-2 rounded-lg transition-all duration-200 border border-red-200;
   }
 
   /* Risk badges */
   .risk-critical {
-    @apply bg-red-500/15 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-full text-xs font-semibold;
+    @apply bg-red-100 text-red-800 border border-red-300 px-2 py-0.5 rounded-full text-xs font-bold tracking-wide;
   }
   .risk-high {
-    @apply bg-orange-500/15 text-orange-400 border border-orange-500/30 px-2 py-0.5 rounded-full text-xs font-semibold;
+    @apply bg-red-50 text-red-700 border border-red-200 px-2 py-0.5 rounded-full text-xs font-semibold;
   }
   .risk-medium {
-    @apply bg-amber-500/15 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full text-xs font-semibold;
+    @apply bg-zinc-100 text-zinc-800 border border-zinc-300 px-2 py-0.5 rounded-full text-xs font-semibold;
   }
   .risk-low {
-    @apply bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full text-xs font-semibold;
+    @apply bg-zinc-50 text-zinc-600 border border-zinc-200 px-2 py-0.5 rounded-full text-xs font-semibold;
   }
 
   /* Status badges */
-  .status-open    { @apply bg-blue-500/15 text-blue-400 border border-blue-500/30; }
-  .status-active  { @apply bg-brand-500/15 text-brand-400 border border-brand-500/30; }
-  .status-closed  { @apply bg-slate-500/15 text-slate-400 border border-slate-500/30; }
-  .status-pending { @apply bg-amber-500/15 text-amber-400 border border-amber-500/30; }
+  .status-open    { @apply bg-red-50 text-red-700 border border-red-200; }
+  .status-active  { @apply bg-zinc-900 text-white border border-zinc-800; }
+  .status-closed  { @apply bg-zinc-100 text-zinc-600 border border-zinc-200; }
+  .status-pending { @apply bg-amber-50 text-amber-800 border border-amber-200; }
 
   /* KPI card */
   .kpi-card {
-    @apply glass p-5 flex flex-col gap-2 hover:border-brand-500/40 transition-all duration-300;
+    @apply glass p-5 flex flex-col gap-2 hover:border-red-500/40 hover:shadow-[0_4px_20px_rgba(220,38,38,0.08)] transition-all duration-300;
   }
 
   /* Data table */
@@ -104,28 +113,28 @@
     @apply w-full text-sm;
   }
   .data-table thead tr {
-    @apply border-b border-slate-700/60;
+    @apply border-b border-zinc-200 bg-zinc-50/90;
   }
   .data-table thead th {
-    @apply text-left text-slate-400 font-medium py-3 px-4 text-xs uppercase tracking-wider;
+    @apply text-left text-zinc-600 font-semibold py-3 px-4 text-xs uppercase tracking-wider;
   }
   .data-table tbody tr {
-    @apply border-b border-slate-800/60 hover:bg-slate-800/30 transition-colors;
+    @apply border-b border-zinc-100 hover:bg-red-50/20 transition-colors;
   }
   .data-table tbody td {
-    @apply py-3 px-4 text-slate-300;
+    @apply py-3 px-4 text-zinc-800;
   }
 
   /* Input */
   .form-input {
-    @apply bg-slate-800/50 border border-slate-700/60 text-slate-100 rounded-lg px-3 py-2
-           placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50
-           transition-all duration-200 w-full;
+    @apply bg-white border border-zinc-300 text-zinc-900 rounded-lg px-3 py-2
+           placeholder-zinc-400 focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/20
+           transition-all duration-200 w-full shadow-sm;
   }
 
   /* Section heading */
   .section-title {
-    @apply text-lg font-semibold text-slate-100 flex items-center gap-2;
+    @apply text-lg font-bold text-zinc-900 flex items-center gap-2;
   }
 
   /* Scan line animation overlay */
@@ -134,24 +143,24 @@
   }
   .scan-overlay::after {
     content: '';
-    @apply absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-brand-400 to-transparent opacity-50;
+    @apply absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-red-500 to-transparent opacity-60;
     animation: scan 2s ease-in-out infinite;
   }
 
   /* Hash display */
   .hash-text {
-    @apply font-mono text-xs text-brand-400 bg-brand-950/30 px-2 py-0.5 rounded border border-brand-500/20;
+    @apply font-mono text-xs text-red-700 bg-red-50/80 px-2 py-0.5 rounded border border-red-200;
   }
 }
 
 /* ── Utilities ──────────────────────────────────────────────── */
 @layer utilities {
   .text-glow {
-    text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+    text-shadow: 0 0 20px rgba(220, 38, 38, 0.25);
   }
 
   .border-glow {
-    box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.4), 0 0 20px rgba(99, 102, 241, 0.15);
+    box-shadow: 0 0 0 1px rgba(220, 38, 38, 0.4), 0 0 20px rgba(220, 38, 38, 0.15);
   }
 
   .animate-fade-in {
@@ -165,34 +174,33 @@
 
 /* ── React Flow custom nodes ──────────────────────────────── */
 .react-flow__node-entity {
-  @apply glass !bg-slate-900/90 border-brand-500/40 !rounded-xl !p-3 min-w-[120px] text-center;
+  @apply glass !bg-white border-zinc-200/90 !rounded-xl !p-3 min-w-[130px] text-center shadow-md;
   transition: all 0.2s ease;
 }
 .react-flow__node-entity:hover {
-  @apply !border-brand-400;
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+  @apply !border-red-500;
+  box-shadow: 0 0 20px rgba(220, 38, 38, 0.25);
 }
 
 .react-flow__edge-path {
-  stroke: rgba(99, 102, 241, 0.4);
+  stroke: rgba(220, 38, 38, 0.45);
   stroke-width: 1.5;
 }
 
 .react-flow__controls {
-  @apply !bg-slate-900/80 !border-slate-700 !rounded-xl !backdrop-blur;
+  @apply !bg-white !border-zinc-200 !rounded-xl !backdrop-blur shadow-md;
 }
 
 .react-flow__controls-button {
-  @apply !bg-slate-800 !border-slate-700 !text-slate-300 hover:!bg-slate-700;
+  @apply !bg-white !border-zinc-200 !text-zinc-700 hover:!bg-zinc-100;
 }
 
 .react-flow__minimap {
-  @apply !bg-slate-900/90 !border-slate-700 !rounded-xl;
+  @apply !bg-white !border-zinc-200 !rounded-xl shadow-md;
 }
 
-
 .react-flow__background {
-  @apply !bg-slate-950;
+  @apply !bg-zinc-50;
 }
 
 /* ── Keyframes ──────────────────────────────────────────────── */
@@ -212,7 +220,6 @@
 }
 
 @keyframes glow {
-  0% { box-shadow: 0 0 5px rgba(99,102,241,0.3); }
-  100% { box-shadow: 0 0 20px rgba(99,102,241,0.8), 0 0 40px rgba(99,102,241,0.3); }
+  0% { box-shadow: 0 0 5px rgba(220,38,38,0.3); }
+  100% { box-shadow: 0 0 20px rgba(220,38,38,0.7), 0 0 35px rgba(220,38,38,0.2); }
 }
-

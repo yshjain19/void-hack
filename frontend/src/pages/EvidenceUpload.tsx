@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   Upload, File, CheckCircle, XCircle, Loader2,
-  AlertTriangle, Hash, Shield, ChevronDown
+  Hash, Shield, ChevronDown, ArrowRight
 } from 'lucide-react'
 import { evidenceApi, casesApi } from '../lib/api'
 import { formatBytes, truncateHash } from '../lib/utils'
@@ -118,30 +118,29 @@ export default function EvidenceUpload() {
     setUploading(false)
   }
 
-  const allDone = files.every(f => f.status === 'success' || f.status === 'error')
   const anySuccess = files.some(f => f.status === 'success')
 
   const FILE_TYPE_COLORS: Record<string, string> = {
-    xlsx: 'text-emerald-400', xls: 'text-emerald-400',
-    csv: 'text-blue-400', eml: 'text-amber-400',
-    json: 'text-purple-400', msg: 'text-amber-400',
+    xlsx: 'text-emerald-600', xls: 'text-emerald-600',
+    csv: 'text-zinc-900', eml: 'text-red-600',
+    json: 'text-red-700', msg: 'text-zinc-800',
   }
 
   return (
     <div className="max-w-3xl mx-auto space-y-5 animate-slide-up">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-white">Upload Evidence</h1>
-        <p className="text-slate-400 text-sm mt-1">
-          Files are SHA-256 hashed automatically with full chain-of-custody logging
+        <h1 className="text-2xl font-extrabold text-zinc-950 tracking-tight">Upload Forensic Evidence</h1>
+        <p className="text-zinc-500 text-sm mt-0.5">
+          Files are cryptographically hashed (SHA-256) upon ingestion with immutable custody logging
         </p>
       </div>
 
       {/* Options */}
-      <div className="glass p-5 space-y-4">
+      <div className="glass p-5 space-y-4 border-zinc-200/90 shadow-xs">
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-1.5">
-            Case <span className="text-red-400">*</span>
+          <label className="block text-xs font-bold uppercase tracking-wider text-zinc-700 mb-1.5">
+            Target Investigation <span className="text-red-600">*</span>
           </label>
           <div className="relative">
             <select
@@ -152,24 +151,24 @@ export default function EvidenceUpload() {
                 const c = cases.find(item => item.id === id)
                 if (c) setActiveCase(c.id, c.title)
               }}
-              className="form-input pr-8 appearance-none cursor-pointer"
+              className="form-input pr-8 appearance-none cursor-pointer text-sm"
             >
-              <option value="" className="bg-slate-900">Select a case...</option>
+              <option value="" className="bg-white text-zinc-900">Select an investigation case...</option>
               {cases.map(c => (
-                <option key={c.id} value={c.id} className="bg-slate-900">{c.title}</option>
+                <option key={c.id} value={c.id} className="bg-white text-zinc-900">{c.title}</option>
               ))}
             </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 pointer-events-none" />
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">Uploaded By</label>
-            <input type="text" value={actor} onChange={e => setActor(e.target.value)} className="form-input" placeholder="analyst" />
+            <label className="block text-xs font-bold uppercase tracking-wider text-zinc-700 mb-1.5">Ingesting Officer / Actor</label>
+            <input type="text" value={actor} onChange={e => setActor(e.target.value)} className="form-input text-sm" placeholder="e.g., Det. Chen" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">Description</label>
-            <input type="text" value={description} onChange={e => setDescription(e.target.value)} className="form-input" placeholder="Optional notes..." />
+            <label className="block text-xs font-bold uppercase tracking-wider text-zinc-700 mb-1.5">Evidence Description</label>
+            <input type="text" value={description} onChange={e => setDescription(e.target.value)} className="form-input text-sm" placeholder="e.g., Bank statement Q3 export" />
           </div>
         </div>
       </div>
@@ -177,30 +176,30 @@ export default function EvidenceUpload() {
       {/* Dropzone */}
       <div
         {...getRootProps()}
-        className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-all duration-300 ${
+        className={`border-2 border-dashed rounded-2xl p-8 sm:p-10 text-center cursor-pointer transition-all duration-200 ${
           isDragActive
-            ? 'border-brand-400 bg-brand-500/10 shadow-lg shadow-brand-500/20'
-            : 'border-slate-700 hover:border-slate-500 bg-slate-900/30'
+            ? 'border-red-600 bg-red-50/60 shadow-lg shadow-red-500/10'
+            : 'border-zinc-300 hover:border-red-500/60 bg-white/80'
         }`}
       >
         <input {...getInputProps()} />
         <div className="flex flex-col items-center gap-3">
-          <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all ${
-            isDragActive ? 'bg-brand-500/20' : 'bg-slate-800/60'
+          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${
+            isDragActive ? 'bg-red-100 text-red-600' : 'bg-zinc-100 text-zinc-500'
           }`}>
-            <Upload className={`w-8 h-8 transition-colors ${isDragActive ? 'text-brand-400' : 'text-slate-500'}`} />
+            <Upload className="w-7 h-7" />
           </div>
           {isDragActive ? (
-            <p className="text-brand-300 font-semibold">Drop files here...</p>
+            <p className="text-red-700 font-bold text-sm">Release to ingest evidence files...</p>
           ) : (
             <>
-              <p className="text-slate-300 font-medium">Drag & drop evidence files</p>
-              <p className="text-slate-500 text-sm">or click to browse</p>
+              <p className="text-zinc-950 font-bold text-sm">Drag & drop forensic evidence files here</p>
+              <p className="text-zinc-500 text-xs">or click to browse your local directory</p>
             </>
           )}
           <div className="flex gap-2 flex-wrap justify-center mt-2">
             {['.xlsx', '.csv', '.eml', '.json'].map(ext => (
-              <span key={ext} className="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded border border-slate-700">
+              <span key={ext} className="text-[11px] font-mono font-bold bg-zinc-100 text-zinc-700 px-2 py-0.5 rounded border border-zinc-200">
                 {ext}
               </span>
             ))}
@@ -210,72 +209,75 @@ export default function EvidenceUpload() {
 
       {/* File list */}
       {files.length > 0 && (
-        <div className="glass overflow-hidden">
-          <div className="flex items-center justify-between p-4 border-b border-slate-800">
-            <span className="text-sm font-semibold text-slate-200">{files.length} file{files.length !== 1 ? 's' : ''} selected</span>
+        <div className="glass overflow-hidden border-zinc-200/90 shadow-xs">
+          <div className="flex items-center justify-between p-4 border-b border-zinc-200 bg-zinc-50/70">
+            <span className="text-xs font-bold uppercase tracking-wider text-zinc-700">{files.length} file{files.length !== 1 ? 's' : ''} queued</span>
             <div className="flex gap-2">
               {anySuccess && (
                 <button
                   onClick={() => navigate(`/cases/${caseId}`)}
-                  className="btn-ghost text-sm flex items-center gap-2"
+                  className="btn-ghost text-xs py-1.5 px-3 flex items-center gap-1.5"
                 >
-                  View Case →
+                  <span>View Case</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-red-600" />
                 </button>
               )}
               <button
                 onClick={uploadAll}
                 disabled={uploading || !caseId || files.every(f => f.status !== 'pending')}
-                className="btn-brand text-sm flex items-center gap-2"
+                className="btn-brand text-xs py-1.5 px-3.5 flex items-center gap-1.5"
               >
-                {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                {uploading ? 'Uploading...' : 'Upload All'}
+                {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+                {uploading ? 'Processing & Hashing...' : 'Ingest & Hash All'}
               </button>
             </div>
           </div>
 
-          <div className="divide-y divide-slate-800">
+          <div className="divide-y divide-zinc-100">
             {files.map(uf => {
               const ext = uf.file.name.split('.').pop()?.toLowerCase() || ''
-              const colorClass = FILE_TYPE_COLORS[ext] || 'text-slate-400'
+              const colorClass = FILE_TYPE_COLORS[ext] || 'text-zinc-700'
               return (
-                <div key={uf.id} className="flex items-center gap-4 p-4 hover:bg-slate-800/20 transition-colors">
-                  <File className={`w-8 h-8 shrink-0 ${colorClass}`} />
+                <div key={uf.id} className="flex items-center gap-3.5 p-4 hover:bg-zinc-50/80 transition-colors">
+                  <div className="w-9 h-9 rounded-lg bg-zinc-100 flex items-center justify-center shrink-0 border border-zinc-200">
+                    <File className={`w-5 h-5 ${colorClass}`} />
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-200 truncate">{uf.file.name}</p>
+                    <p className="text-sm font-bold text-zinc-950 truncate">{uf.file.name}</p>
                     <div className="flex items-center gap-3 mt-0.5">
-                      <span className="text-xs text-slate-500">{formatBytes(uf.file.size)}</span>
-                      <span className="text-xs text-slate-600 uppercase">{ext}</span>
+                      <span className="text-xs text-zinc-500 font-medium">{formatBytes(uf.file.size)}</span>
+                      <span className="text-[10px] font-mono font-bold text-zinc-600 uppercase bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200">{ext}</span>
                     </div>
                     {uf.hash && (
-                      <div className="flex items-center gap-1.5 mt-1">
-                        <Hash className="w-3 h-3 text-slate-600" />
-                        <code className="hash-text">{truncateHash(uf.hash)}</code>
-                        <Shield className="w-3 h-3 text-emerald-500" />
+                      <div className="flex items-center gap-1.5 mt-1.5">
+                        <Hash className="w-3.5 h-3.5 text-zinc-400" />
+                        <code className="hash-text font-mono text-[11px]">{truncateHash(uf.hash)}</code>
+                        <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
                       </div>
                     )}
                     {uf.error && (
-                      <p className="text-xs text-red-400 mt-1">{uf.error}</p>
+                      <p className="text-xs text-red-700 font-semibold mt-1">{uf.error}</p>
                     )}
                   </div>
 
                   {/* Status */}
                   <div className="shrink-0">
                     {uf.status === 'pending' && (
-                      <span className="text-xs text-slate-500 border border-slate-700 px-2 py-1 rounded">Pending</span>
+                      <span className="text-[11px] font-bold text-zinc-500 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded-full">Pending</span>
                     )}
                     {uf.status === 'uploading' && (
-                      <Loader2 className="w-5 h-5 text-brand-400 animate-spin" />
+                      <Loader2 className="w-5 h-5 text-red-600 animate-spin" />
                     )}
                     {uf.status === 'success' && (
-                      <CheckCircle className="w-5 h-5 text-emerald-400" />
+                      <CheckCircle className="w-5 h-5 text-emerald-600" />
                     )}
                     {uf.status === 'error' && (
-                      <XCircle className="w-5 h-5 text-red-400" />
+                      <XCircle className="w-5 h-5 text-red-600" />
                     )}
                   </div>
 
                   {uf.status === 'pending' && (
-                    <button onClick={() => removeFile(uf.id)} className="text-slate-600 hover:text-slate-400 transition-colors">
+                    <button onClick={() => removeFile(uf.id)} className="text-zinc-400 hover:text-red-600 p-1 transition-colors">
                       <XCircle className="w-4 h-4" />
                     </button>
                   )}
@@ -287,15 +289,13 @@ export default function EvidenceUpload() {
       )}
 
       {/* Info */}
-      <div className="glass p-4 border-l-4 border-emerald-500">
+      <div className="glass p-4 border-l-4 border-emerald-600 bg-emerald-50/20 border-zinc-200/90 shadow-xs">
         <div className="flex items-start gap-3">
-          <Shield className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
-          <div className="text-sm">
-            <p className="text-emerald-300 font-semibold">Forensic Integrity Guaranteed</p>
-            <p className="text-slate-400 mt-0.5">
-              Every uploaded file is immediately SHA-256 hashed. All subsequent access,
-              verification, and deletion events are recorded in an immutable chain-of-custody
-              log with chained hashes, ensuring tamper-evident audit trails.
+          <Shield className="w-4 h-4 text-emerald-700 mt-0.5 shrink-0" />
+          <div className="text-xs sm:text-sm">
+            <p className="text-emerald-900 font-bold">Cryptographic Forensic Integrity Guaranteed</p>
+            <p className="text-zinc-600 mt-0.5 leading-relaxed font-medium">
+              Every uploaded artifact is hashed using client-side and server-side SHA-256 algorithms. All subsequent read, export, or analytical operations append to the tamper-evident chain of custody.
             </p>
           </div>
         </div>

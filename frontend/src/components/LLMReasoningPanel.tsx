@@ -15,10 +15,10 @@ interface LLMReasoningPanelProps {
 }
 
 const CONFIDENCE_COLOR: Record<string, string> = {
-  low:          'text-red-400 bg-red-500/10 border-red-500/30',
-  medium:       'text-amber-400 bg-amber-500/10 border-amber-500/30',
-  'medium-high': 'text-brand-400 bg-brand-500/10 border-brand-500/30',
-  high:         'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
+  low:          'text-red-700 bg-red-50 border-red-200',
+  medium:       'text-zinc-800 bg-zinc-100 border-zinc-300',
+  'medium-high': 'text-red-600 bg-red-50 border-red-300',
+  high:         'text-emerald-800 bg-emerald-50 border-emerald-300',
 }
 
 export default function LLMReasoningPanel({ data, loading, onAsk }: LLMReasoningPanelProps) {
@@ -33,16 +33,24 @@ export default function LLMReasoningPanel({ data, loading, onAsk }: LLMReasoning
 
   if (loading) {
     return (
-      <div className="glass p-6 flex flex-col items-center justify-center gap-3 min-h-[200px]">
+      <div className="glass p-8 flex flex-col items-center justify-center gap-3 min-h-[220px] text-center border-zinc-200/90 shadow-sm">
         <div className="relative">
-          <Brain className="w-8 h-8 text-brand-400 animate-pulse" />
-          <div className="absolute inset-0 rounded-full bg-brand-500/20 animate-ping" />
+          <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center border border-red-200">
+            <Brain className="w-6 h-6 text-red-600 animate-pulse" />
+          </div>
+          <div className="absolute inset-0 rounded-full bg-red-500/20 animate-ping" />
         </div>
-        <p className="text-slate-400 text-sm">AI is analyzing the evidence...</p>
-        <div className="flex gap-1">
-          {[0,1,2].map(i => (
-            <div key={i} className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-bounce"
-              style={{ animationDelay: `${i * 150}ms` }} />
+        <div>
+          <p className="text-zinc-900 font-bold text-sm">Forensic AI Reasoning Engine Active</p>
+          <p className="text-zinc-500 text-xs mt-0.5">Synthesizing evidence artifacts, behavioral anomalies, and custody graphs...</p>
+        </div>
+        <div className="flex gap-1 mt-1">
+          {[0, 1, 2].map(i => (
+            <div
+              key={i}
+              className="w-2 h-2 rounded-full bg-red-600 animate-bounce"
+              style={{ animationDelay: `${i * 150}ms` }}
+            />
           ))}
         </div>
       </div>
@@ -51,11 +59,16 @@ export default function LLMReasoningPanel({ data, loading, onAsk }: LLMReasoning
 
   if (!data) {
     return (
-      <div className="glass p-8 text-center">
-        <Brain className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-        <p className="text-slate-500 text-sm">Run an AI investigation to see analysis</p>
+      <div className="glass p-8 text-center border-zinc-200/90 shadow-sm">
+        <div className="w-12 h-12 rounded-xl bg-zinc-100 text-zinc-500 flex items-center justify-center mx-auto mb-3 border border-zinc-200">
+          <Brain className="w-6 h-6 text-zinc-600" />
+        </div>
+        <h4 className="text-base font-bold text-zinc-900">AI Forensic Analysis Ready</h4>
+        <p className="text-zinc-500 text-sm mt-1 max-w-md mx-auto">
+          Run an investigation hypothesis generation or ask a direct case question below to initiate inference.
+        </p>
         {onAsk && (
-          <div className="mt-4 flex gap-2 max-w-md mx-auto">
+          <div className="mt-5 flex gap-2 max-w-md mx-auto">
             <input
               type="text"
               value={question}
@@ -64,7 +77,7 @@ export default function LLMReasoningPanel({ data, loading, onAsk }: LLMReasoning
               placeholder="Ask a question about this case..."
               className="form-input text-sm"
             />
-            <button onClick={handleAsk} className="btn-brand px-3 py-2 shrink-0">
+            <button onClick={handleAsk} className="btn-brand px-3.5 py-2 shrink-0">
               <Send className="w-4 h-4" />
             </button>
           </div>
@@ -74,51 +87,53 @@ export default function LLMReasoningPanel({ data, loading, onAsk }: LLMReasoning
   }
 
   return (
-    <div className="space-y-3 animate-fade-in">
+    <div className="space-y-4 animate-fade-in">
       {/* Summary banner */}
       {data.summary && (
-        <div className="glass p-4 border-l-4 border-brand-500">
-          <p className="text-sm font-semibold text-brand-300 mb-1">Executive Summary</p>
-          <p className="text-slate-300 text-sm leading-relaxed">{data.summary}</p>
+        <div className="glass p-4 border-l-4 border-red-600 shadow-xs">
+          <p className="text-xs font-bold uppercase tracking-wider text-red-700 mb-1">Executive Summary</p>
+          <p className="text-zinc-800 text-sm leading-relaxed font-medium">{data.summary}</p>
         </div>
       )}
 
       {/* Confidence */}
       {data.confidence && (
-        <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm w-fit ${
+        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-bold w-fit ${
           CONFIDENCE_COLOR[data.confidence.toLowerCase()] || CONFIDENCE_COLOR.medium
         }`}>
-          <BarChart2 className="w-4 h-4" />
-          Confidence: <strong className="capitalize">{data.confidence}</strong>
+          <BarChart2 className="w-3.5 h-3.5" />
+          Confidence Rating: <span className="capitalize">{data.confidence}</span>
         </div>
       )}
 
       {/* Hypothesis */}
       {data.hypothesis && (
-        <div className="glass p-4">
+        <div className="glass p-4 border-zinc-200/90 shadow-xs">
           <div className="flex items-center gap-2 mb-2">
-            <Lightbulb className="w-4 h-4 text-amber-400" />
-            <span className="text-sm font-semibold text-amber-300">Primary Hypothesis</span>
+            <Lightbulb className="w-4 h-4 text-red-600" />
+            <span className="text-sm font-bold text-zinc-950">Primary Working Hypothesis</span>
           </div>
-          <p className="text-slate-300 text-sm leading-relaxed italic">"{data.hypothesis}"</p>
+          <p className="text-zinc-700 text-sm leading-relaxed italic bg-zinc-50 p-3 rounded-lg border border-zinc-200">
+            "{data.hypothesis}"
+          </p>
         </div>
       )}
 
       {/* Reasoning */}
       {data.reasoning && (
-        <div className="glass p-4">
+        <div className="glass p-4 border-zinc-200/90 shadow-xs">
           <button
             onClick={() => setExpanded(!expanded)}
-            className="flex items-center justify-between w-full"
+            className="flex items-center justify-between w-full text-left"
           >
             <div className="flex items-center gap-2">
-              <Brain className="w-4 h-4 text-brand-400" />
-              <span className="text-sm font-semibold text-slate-200">AI Reasoning</span>
+              <Brain className="w-4 h-4 text-red-600" />
+              <span className="text-sm font-bold text-zinc-950">AI Forensic Reasoning & Evidence Nexus</span>
             </div>
-            {expanded ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
+            {expanded ? <ChevronUp className="w-4 h-4 text-zinc-500" /> : <ChevronDown className="w-4 h-4 text-zinc-500" />}
           </button>
           {expanded && (
-            <p className="text-slate-400 text-sm leading-relaxed mt-3 whitespace-pre-line">
+            <p className="text-zinc-600 text-sm leading-relaxed mt-3 whitespace-pre-line border-t border-zinc-100 pt-3">
               {data.reasoning}
             </p>
           )}
@@ -127,18 +142,18 @@ export default function LLMReasoningPanel({ data, loading, onAsk }: LLMReasoning
 
       {/* Next steps */}
       {data.next_steps && data.next_steps.length > 0 && (
-        <div className="glass p-4">
+        <div className="glass p-4 border-zinc-200/90 shadow-xs">
           <div className="flex items-center gap-2 mb-3">
-            <ListChecks className="w-4 h-4 text-emerald-400" />
-            <span className="text-sm font-semibold text-slate-200">Recommended Next Steps</span>
+            <ListChecks className="w-4 h-4 text-emerald-700" />
+            <span className="text-sm font-bold text-zinc-950">Actionable Next Steps</span>
           </div>
           <ol className="space-y-2">
             {data.next_steps.map((step, i) => (
-              <li key={i} className="flex gap-3 text-sm">
-                <span className="w-5 h-5 rounded-full bg-brand-600/30 text-brand-400 flex items-center justify-center text-xs font-bold shrink-0">
+              <li key={i} className="flex items-start gap-3 text-sm">
+                <span className="w-5 h-5 rounded-full bg-red-50 text-red-700 border border-red-200 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
                   {i + 1}
                 </span>
-                <span className="text-slate-300">{step}</span>
+                <span className="text-zinc-700 font-medium">{step}</span>
               </li>
             ))}
           </ol>
@@ -153,11 +168,12 @@ export default function LLMReasoningPanel({ data, loading, onAsk }: LLMReasoning
             value={question}
             onChange={e => setQuestion(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleAsk()}
-            placeholder="Ask a follow-up question..."
+            placeholder="Ask a follow-up inquiry about this forensic evaluation..."
             className="form-input text-sm"
           />
-          <button onClick={handleAsk} disabled={!question.trim()} className="btn-brand px-3 py-2 shrink-0">
+          <button onClick={handleAsk} disabled={!question.trim()} className="btn-brand px-4 py-2 shrink-0 flex items-center gap-2">
             <Send className="w-4 h-4" />
+            <span className="hidden sm:inline">Ask</span>
           </button>
         </div>
       )}

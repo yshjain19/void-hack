@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, FileText, Plus, Loader2, RefreshCw, Download } from 'lucide-react'
+import { ArrowLeft, FileText, Plus, Loader2, RefreshCw } from 'lucide-react'
 import { reportsApi } from '../lib/api'
 import ReportDownloader from '../components/ReportDownloader'
 import { useCase } from '../lib/CaseContext'
@@ -16,7 +16,7 @@ export default function ReportsView() {
     include_anomalies: true,
     include_custody: true,
     ai_narrative: true,
-    generated_by: 'analyst',
+    generated_by: 'Forensic Lead',
   })
 
   useEffect(() => {
@@ -68,40 +68,43 @@ export default function ReportsView() {
           <Link to={`/cases/${caseId}`} className="btn-ghost p-2">
             <ArrowLeft className="w-4 h-4" />
           </Link>
-          <FileText className="w-5 h-5 text-brand-400" />
+          <div className="w-8 h-8 rounded-lg bg-red-50 border border-red-200 flex items-center justify-center">
+            <FileText className="w-4 h-4 text-red-600" />
+          </div>
           <div>
-            <h2 className="font-bold text-white">Investigation Reports</h2>
-            <p className="text-xs text-slate-500">{reports.length} report{reports.length !== 1 ? 's' : ''} generated</p>
+            <h2 className="font-extrabold text-zinc-950 text-base sm:text-lg tracking-tight">Forensic Examination Reports</h2>
+            <p className="text-xs text-zinc-500 font-medium">{reports.length} report{reports.length !== 1 ? 's' : ''} generated</p>
           </div>
         </div>
         <div className="flex gap-2">
-          <button onClick={load} className="btn-ghost flex items-center gap-2 text-sm">
-            <RefreshCw className="w-4 h-4" />
+          <button onClick={load} className="btn-ghost flex items-center gap-1.5 text-xs py-2 px-3">
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Refresh</span>
           </button>
-          <button onClick={generate} disabled={generating} className="btn-brand flex items-center gap-2">
-            {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-            {generating ? 'Generating...' : 'Generate Report'}
+          <button onClick={generate} disabled={generating} className="btn-brand flex items-center gap-2 text-xs py-2 px-3.5 shadow-xs">
+            {generating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
+            {generating ? 'Compiling Report...' : 'Generate New Report'}
           </button>
         </div>
       </div>
 
       {/* Options */}
-      <div className="glass p-5">
-        <h3 className="section-title mb-4">Report Options</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="glass p-5 border-zinc-200/90 shadow-xs">
+        <h3 className="section-title mb-4">Report Generation Configuration</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
-            { key: 'include_graph', label: 'Include Graph' },
-            { key: 'include_anomalies', label: 'Anomaly Data' },
-            { key: 'include_custody', label: 'Custody Chain' },
-            { key: 'ai_narrative', label: 'AI Narrative' },
+            { key: 'include_graph', label: 'Include Graph Analysis' },
+            { key: 'include_anomalies', label: 'Anomaly Log Data' },
+            { key: 'include_custody', label: 'Chain of Custody' },
+            { key: 'ai_narrative', label: 'AI Forensic Narrative' },
           ].map(({ key, label }) => (
-            <label key={key} className="flex items-center gap-2 cursor-pointer group">
+            <label key={key} className="flex items-center gap-2.5 cursor-pointer group select-none">
               <div
                 onClick={() => setOptions(o => ({ ...o, [key]: !o[key as keyof typeof o] }))}
-                className={`w-5 h-5 rounded border flex items-center justify-center transition-all cursor-pointer ${
+                className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all cursor-pointer ${
                   options[key as keyof typeof options]
-                    ? 'bg-brand-600 border-brand-600'
-                    : 'bg-slate-800 border-slate-600 group-hover:border-slate-500'
+                    ? 'bg-red-600 border-red-600 shadow-xs shadow-red-600/30'
+                    : 'bg-white border-zinc-300 group-hover:border-zinc-400'
                 }`}
               >
                 {options[key as keyof typeof options] && (
@@ -110,34 +113,33 @@ export default function ReportsView() {
                   </svg>
                 )}
               </div>
-              <span className="text-sm text-slate-300 select-none">{label}</span>
+              <span className="text-xs font-bold text-zinc-800">{label}</span>
             </label>
           ))}
         </div>
-        <div className="mt-4">
-          <label className="text-xs text-slate-500 block mb-1.5">Generated By</label>
+        <div className="mt-4 pt-4 border-t border-zinc-100">
+          <label className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider block mb-1.5">Investigator Sign-off (Name/Badge)</label>
           <input
             type="text"
             value={options.generated_by}
             onChange={e => setOptions(o => ({ ...o, generated_by: e.target.value }))}
-            className="form-input text-sm max-w-xs"
-            placeholder="Analyst name..."
+            className="form-input text-xs max-w-sm"
+            placeholder="e.g. Lead Investigator / Badge 4921"
           />
         </div>
       </div>
 
       {/* Report info */}
-      <div className="glass p-4 border-l-4 border-amber-500">
-        <p className="text-sm text-slate-300">
-          Each generation creates <strong className="text-white">both PDF and JSON</strong> reports.
-          Reports are cryptographically hashed (SHA-256) and stored with metadata for audit purposes.
+      <div className="glass p-4 border-l-4 border-zinc-900 bg-zinc-50/80 border-zinc-200/90 shadow-xs">
+        <p className="text-xs sm:text-sm text-zinc-700 font-medium">
+          Each generation produces <strong className="text-zinc-950 font-bold">PDF and JSON courtroom packages</strong> with immutable SHA-256 integrity verification hashes.
         </p>
       </div>
 
       {/* Reports list */}
       {loading ? (
-        <div className="flex justify-center py-8">
-          <div className="w-6 h-6 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
+        <div className="flex justify-center py-12">
+          <div className="w-7 h-7 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
         <ReportDownloader

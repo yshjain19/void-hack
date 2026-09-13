@@ -15,20 +15,20 @@ const TYPE_CONFIG: Record<string, {
   color: string
   bg: string
 }> = {
-  person:       { icon: User,      color: 'text-blue-400',    bg: 'from-blue-900/60 to-blue-950/60' },
-  organization: { icon: Building2, color: 'text-purple-400',  bg: 'from-purple-900/60 to-purple-950/60' },
-  ip:           { icon: Monitor,   color: 'text-amber-400',   bg: 'from-amber-900/60 to-amber-950/60' },
-  account:      { icon: CreditCard,color: 'text-emerald-400', bg: 'from-emerald-900/60 to-emerald-950/60' },
-  email:        { icon: Mail,      color: 'text-cyan-400',    bg: 'from-cyan-900/60 to-cyan-950/60' },
-  phone:        { icon: Phone,     color: 'text-pink-400',    bg: 'from-pink-900/60 to-pink-950/60' },
-  address:      { icon: MapPin,    color: 'text-red-400',     bg: 'from-red-900/60 to-red-950/60' },
+  person:       { icon: User,       color: 'text-zinc-900', bg: 'bg-zinc-100' },
+  organization: { icon: Building2,  color: 'text-red-700',  bg: 'bg-red-50' },
+  ip:           { icon: Monitor,    color: 'text-zinc-800', bg: 'bg-zinc-100' },
+  account:      { icon: CreditCard, color: 'text-red-600',  bg: 'bg-red-50' },
+  email:        { icon: Mail,       color: 'text-zinc-900', bg: 'bg-zinc-100' },
+  phone:        { icon: Phone,      color: 'text-red-700',  bg: 'bg-red-50' },
+  address:      { icon: MapPin,     color: 'text-zinc-900', bg: 'bg-zinc-100' },
 }
 
 const RISK_BORDER = {
-  critical: 'border-red-500/60',
-  high:     'border-orange-500/60',
-  medium:   'border-amber-500/40',
-  low:      'border-slate-700/60',
+  critical: 'border-red-600 ring-2 ring-red-500/20 shadow-red-500/10',
+  high:     'border-red-400 shadow-sm',
+  medium:   'border-zinc-400 shadow-sm',
+  low:      'border-zinc-200 shadow-xs',
 }
 
 function EntityNode({ data, selected }: NodeProps<EntityNodeData>) {
@@ -39,46 +39,46 @@ function EntityNode({ data, selected }: NodeProps<EntityNodeData>) {
 
   return (
     <div className={`
-      relative min-w-[130px] rounded-xl p-3 border backdrop-blur-xl
-      bg-gradient-to-br ${config.bg} ${riskBorder}
-      ${selected ? 'shadow-lg shadow-brand-500/30 ring-2 ring-brand-500/50' : ''}
+      relative min-w-[130px] rounded-xl p-3 border bg-white text-zinc-900
+      ${riskBorder}
+      ${selected ? 'shadow-lg shadow-red-600/20 ring-2 ring-red-600' : 'shadow-xs'}
       transition-all duration-200
     `}>
-      <Handle type="target" position={Position.Top} className="!bg-brand-500 !w-2 !h-2 !border-0" />
+      <Handle type="target" position={Position.Top} className="!bg-red-600 !w-2.5 !h-2.5 !border-2 !border-white" />
 
       <div className="flex flex-col items-center gap-1.5 text-center">
-        <div className={`w-8 h-8 rounded-lg bg-slate-900/60 flex items-center justify-center ${config.color}`}>
+        <div className={`w-8 h-8 rounded-lg ${config.bg} flex items-center justify-center ${config.color} border border-zinc-200/80`}>
           <Icon className="w-4 h-4" />
         </div>
-        <span className="text-xs font-semibold text-slate-200 leading-tight break-all max-w-[120px]">
+        <span className="text-xs font-bold text-zinc-950 leading-tight break-all max-w-[120px]">
           {data.label.length > 20 ? data.label.slice(0, 20) + '…' : data.label}
         </span>
         <div className="flex items-center gap-1">
-          <span className="text-xs text-slate-500 capitalize">{data.type}</span>
+          <span className="text-[11px] text-zinc-500 font-semibold capitalize">{data.type}</span>
           {data.risk_score > 0.3 && (
             <span className={`text-xs font-bold ${
-              level === 'critical' ? 'text-red-400' :
-              level === 'high' ? 'text-orange-400' : 'text-amber-400'
+              level === 'critical' ? 'text-red-600' :
+              level === 'high' ? 'text-red-500' : 'text-zinc-700'
             }`}>
               ⚠
             </span>
           )}
         </div>
         {/* Risk bar */}
-        <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+        <div className="w-full h-1.5 bg-zinc-100 rounded-full overflow-hidden border border-zinc-200">
           <div
             className={`h-full rounded-full bg-gradient-to-r ${
-              level === 'critical' ? 'from-red-600 to-red-400' :
-              level === 'high' ? 'from-orange-600 to-orange-400' :
-              level === 'medium' ? 'from-amber-600 to-amber-400' :
-              'from-emerald-600 to-emerald-400'
+              level === 'critical' ? 'from-red-600 to-red-500' :
+              level === 'high' ? 'from-red-500 to-rose-400' :
+              level === 'medium' ? 'from-zinc-800 to-zinc-600' :
+              'from-zinc-500 to-zinc-300'
             }`}
             style={{ width: `${Math.min(data.risk_score * 100, 100)}%` }}
           />
         </div>
       </div>
 
-      <Handle type="source" position={Position.Bottom} className="!bg-brand-500 !w-2 !h-2 !border-0" />
+      <Handle type="source" position={Position.Bottom} className="!bg-red-600 !w-2.5 !h-2.5 !border-2 !border-white" />
     </div>
   )
 }

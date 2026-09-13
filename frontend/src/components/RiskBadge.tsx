@@ -28,20 +28,20 @@ export function RiskBadge({ score, showScore = false, size = 'sm' }: RiskBadgePr
 export function RiskBar({ score }: { score: number }) {
   const level = getRiskLevel(score)
   const colors = {
-    critical: 'from-red-600 to-red-400',
-    high:     'from-orange-600 to-orange-400',
-    medium:   'from-amber-600 to-amber-400',
-    low:      'from-emerald-600 to-emerald-400',
+    critical: 'from-red-600 to-red-500',
+    high:     'from-red-500 to-rose-400',
+    medium:   'from-zinc-800 to-zinc-600',
+    low:      'from-zinc-600 to-zinc-400',
   }
   return (
     <div className="flex items-center gap-2">
-      <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+      <div className="flex-1 h-2 bg-zinc-200 rounded-full overflow-hidden">
         <div
           className={cn('h-full rounded-full bg-gradient-to-r transition-all duration-500', colors[level])}
           style={{ width: `${Math.min(score * 100, 100)}%` }}
         />
       </div>
-      <span className="text-xs text-slate-400 w-10 text-right">{(score * 100).toFixed(0)}%</span>
+      <span className="text-xs font-bold text-zinc-700 w-10 text-right font-mono">{(score * 100).toFixed(0)}%</span>
     </div>
   )
 }

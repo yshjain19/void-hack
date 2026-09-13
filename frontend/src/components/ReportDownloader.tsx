@@ -68,10 +68,10 @@ export default function ReportDownloader({ reports, onDelete }: ReportDownloader
 
   if (reports.length === 0) {
     return (
-      <div className="glass p-8 text-center">
-        <FileText className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-        <p className="text-slate-500 text-sm">No reports generated yet</p>
-        <p className="text-slate-600 text-xs mt-1">Generate a report using the button above</p>
+      <div className="glass p-8 text-center border-zinc-200/90 shadow-sm">
+        <FileText className="w-10 h-10 text-zinc-400 mx-auto mb-3" />
+        <p className="text-zinc-800 text-sm font-bold">No Examination Reports Generated Yet</p>
+        <p className="text-zinc-500 text-xs mt-1">Configure and generate a verified forensic package using the generator above.</p>
       </div>
     )
   }
@@ -79,37 +79,37 @@ export default function ReportDownloader({ reports, onDelete }: ReportDownloader
   return (
     <div className="space-y-3">
       {reports.map(report => (
-        <div key={report.id} className="glass p-4 flex items-center gap-4 hover:border-brand-500/30 transition-all">
+        <div key={report.id} className="glass p-4 flex items-center gap-4 hover:border-red-500/40 transition-all border-zinc-200/90 shadow-xs">
           {/* Icon */}
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
             report.format === 'pdf'
-              ? 'bg-red-500/15 text-red-400'
-              : 'bg-amber-500/15 text-amber-400'
+              ? 'bg-red-50 text-red-600 border border-red-200'
+              : 'bg-zinc-100 text-zinc-900 border border-zinc-200'
           }`}>
             {report.format === 'pdf' ? <FileText className="w-5 h-5" /> : <FileJson className="w-5 h-5" />}
           </div>
 
           {/* Info */}
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-slate-200 truncate">{report.title}</p>
+            <p className="text-sm font-bold text-zinc-950 truncate">{report.title}</p>
             <div className="flex items-center gap-3 mt-1 flex-wrap">
-              <span className="text-xs text-slate-500">{formatDateTime(report.created_at)}</span>
+              <span className="text-xs text-zinc-500 font-medium">{formatDateTime(report.created_at)}</span>
               {report.file_size && (
-                <span className="text-xs text-slate-500">{formatBytes(report.file_size)}</span>
+                <span className="text-xs text-zinc-500 font-medium">{formatBytes(report.file_size)}</span>
               )}
-              <span className={`text-xs px-2 py-0.5 rounded-full border ${
+              <span className={`text-xs px-2 py-0.5 rounded-full border font-bold ${
                 report.format === 'pdf'
-                  ? 'bg-red-500/10 text-red-400 border-red-500/20'
-                  : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                  ? 'bg-red-50 text-red-700 border-red-200'
+                  : 'bg-zinc-100 text-zinc-800 border-zinc-200'
               }`}>
                 {report.format.toUpperCase()}
               </span>
             </div>
             {report.sha256_hash && (
               <div className="flex items-center gap-1.5 mt-1.5">
-                <Hash className="w-3 h-3 text-slate-600" />
+                <Hash className="w-3 h-3 text-zinc-400" />
                 <code className="hash-text">{truncateHash(report.sha256_hash)}</code>
-                <CheckCircle className="w-3 h-3 text-emerald-500" />
+                <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
               </div>
             )}
           </div>
@@ -119,21 +119,22 @@ export default function ReportDownloader({ reports, onDelete }: ReportDownloader
             <button
               onClick={() => handleDownload(report)}
               disabled={downloading === report.id}
-              className="btn-ghost text-xs py-1.5 px-3 flex items-center gap-1.5"
+              className="btn-brand text-xs py-1.5 px-3 flex items-center gap-1.5 shadow-xs"
             >
               {downloading === report.id
-                ? <Loader2 className="w-3 h-3 animate-spin" />
-                : <Download className="w-3 h-3" />}
-              Download
+                ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                : <Download className="w-3.5 h-3.5" />}
+              <span className="hidden sm:inline">Download</span>
             </button>
             <button
               onClick={() => handleDelete(report)}
               disabled={deleting === report.id}
               className="btn-danger text-xs py-1.5 px-2 flex items-center gap-1"
+              title="Delete report"
             >
               {deleting === report.id
-                ? <Loader2 className="w-3 h-3 animate-spin" />
-                : <Trash2 className="w-3 h-3" />}
+                ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                : <Trash2 className="w-3.5 h-3.5" />}
             </button>
           </div>
         </div>
