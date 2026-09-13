@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { evidenceApi, casesApi } from '../lib/api'
 import { formatBytes, truncateHash } from '../lib/utils'
+import { useCase } from '../lib/CaseContext'
 
 interface UploadFile {
   file: File
@@ -20,7 +21,8 @@ interface UploadFile {
 export default function EvidenceUpload() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const defaultCaseId = searchParams.get('case_id') || ''
+  const { activeCaseId, setActiveCase } = useCase()
+  const defaultCaseId = searchParams.get('case_id') || activeCaseId || ''
 
   const [caseId, setCaseId] = useState(defaultCaseId)
   const [cases, setCases] = useState<any[]>([])
@@ -30,7 +32,14 @@ export default function EvidenceUpload() {
   const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
-    casesApi.list({ limit: 100 }).then(r => setCases(r.data.items || [])).catch(() => {})
+    casesApi.list({ limit: 100 }).then(r => {
+      const items = r.data.items || []
+      setCases(items)
+      if (!caseId && items.length > 0) {
+        setCaseId(items[0].id)
+        setActiveCase(items[0].id, items[0].title)
+      }
+    }).catch(() => {})
   }, [])
 
   const onDrop = useCallback((accepted: File[]) => {
@@ -115,7 +124,12 @@ export default function EvidenceUpload() {
           <div className="relative">
             <select
               value={caseId}
-              onChange={e => setCaseId(e.target.value)}
+              onChange={e => {
+                const id = e.target.value
+                setCaseId(id)
+                const c = cases.find(item => item.id === id)
+                if (c) setActiveCase(c.id, c.title)
+              }}
               className="form-input pr-8 appearance-none cursor-pointer"
             >
               <option value="" className="bg-slate-900">Select a case...</option>
@@ -126,7 +140,7 @@ export default function EvidenceUpload() {
             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-1.5">Uploaded By</label>
             <input type="text" value={actor} onChange={e => setActor(e.target.value)} className="form-input" placeholder="analyst" />

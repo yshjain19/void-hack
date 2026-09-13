@@ -102,7 +102,15 @@ class TestEmailParser(unittest.TestCase):
 class TestAsyncAPI(unittest.IsolatedAsyncioTestCase):
     async def test_api_live(self):
         import httpx
-        async with httpx.AsyncClient(base_url="http://127.0.0.1:8000") as client:
+        from main import app
+        from core.database import engine, Base
+
+        # Ensure database tables exist
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+
+        transport = httpx.ASGITransport(app=app)
+        async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
             # 1. Root
             root_res = await client.get("/")
             self.assertEqual(root_res.status_code, 200)

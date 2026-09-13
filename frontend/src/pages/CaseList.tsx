@@ -50,7 +50,7 @@ export default function CaseList() {
   return (
     <div className="space-y-5 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-white">Investigation Cases</h1>
           <p className="text-slate-400 text-sm mt-1">{total} cases total</p>
@@ -118,68 +118,70 @@ export default function CaseList() {
             </Link>
           </div>
         ) : (
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Case</th>
-                <th>Status</th>
-                <th>Priority</th>
-                <th>Investigator</th>
-                <th>Evidence</th>
-                <th>Entities</th>
-                <th>Reports</th>
-                <th>Created</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {cases.map(c => (
-                <tr key={c.id} className="group">
-                  <td>
-                    <Link
-                      to={`/cases/${c.id}`}
-                      className="text-slate-200 hover:text-brand-300 font-medium transition-colors"
-                    >
-                      {c.title}
-                    </Link>
-                    {c.tags && (
-                      <div className="flex gap-1 mt-1 flex-wrap">
-                        {c.tags.split(',').slice(0, 3).map((tag: string) => (
-                          <span key={tag} className="text-xs bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded">
-                            {tag.trim()}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </td>
-                  <td>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium border status-${c.status}`}>
-                      {c.status}
-                    </span>
-                  </td>
-                  <td><RiskBadge score={priorityScore(c.priority)} /></td>
-                  <td><span className="text-slate-400 text-sm">{c.investigator || '—'}</span></td>
-                  <td>
-                    <span className="text-slate-300 font-mono text-sm">{c.evidence_count}</span>
-                  </td>
-                  <td>
-                    <span className="text-slate-300 font-mono text-sm">{c.entity_count}</span>
-                  </td>
-                  <td>
-                    <span className="text-slate-300 font-mono text-sm">{c.report_count}</span>
-                  </td>
-                  <td>
-                    <span className="text-slate-500 text-xs">{formatDateTime(c.created_at)}</span>
-                  </td>
-                  <td>
-                    <Link to={`/cases/${c.id}`} className="text-brand-400 hover:text-brand-300 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Case</th>
+                  <th>Status</th>
+                  <th>Priority</th>
+                  <th>Investigator</th>
+                  <th>Evidence</th>
+                  <th>Entities</th>
+                  <th>Reports</th>
+                  <th>Created</th>
+                  <th></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {cases.map(c => (
+                  <tr key={c.id} className="group">
+                    <td>
+                      <Link
+                        to={`/cases/${c.id}`}
+                        className="text-slate-200 hover:text-brand-300 font-medium transition-colors"
+                      >
+                        {c.title}
+                      </Link>
+                      {c.tags && (
+                        <div className="flex gap-1 mt-1 flex-wrap">
+                          {c.tags.split(',').slice(0, 3).map((tag: string) => (
+                            <span key={tag} className="text-xs bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded">
+                              {tag.trim()}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </td>
+                    <td>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium border status-${c.status}`}>
+                        {c.status}
+                      </span>
+                    </td>
+                    <td><RiskBadge score={priorityScore(c.priority)} /></td>
+                    <td><span className="text-slate-400 text-sm">{c.investigator || '—'}</span></td>
+                    <td>
+                      <span className="text-slate-300 font-mono text-sm">{c.evidence_count}</span>
+                    </td>
+                    <td>
+                      <span className="text-slate-300 font-mono text-sm">{c.entity_count}</span>
+                    </td>
+                    <td>
+                      <span className="text-slate-300 font-mono text-sm">{c.report_count}</span>
+                    </td>
+                    <td>
+                      <span className="text-slate-500 text-xs">{formatDateTime(c.created_at)}</span>
+                    </td>
+                    <td>
+                      <Link to={`/cases/${c.id}`} className="text-brand-400 hover:text-brand-300 opacity-70 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
 
         {/* Pagination */}

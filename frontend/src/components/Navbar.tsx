@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Bell, Search, Activity, Wifi, WifiOff } from 'lucide-react'
+import { Bell, Search, Activity, Wifi, WifiOff, Menu, Folder } from 'lucide-react'
 import { healthApi } from '../lib/api'
+import { useCase } from '../lib/CaseContext'
 
 export default function Navbar() {
   const location = useLocation()
+  const { toggleMobileMenu, activeCaseTitle, openCaseSelector } = useCase()
   const [online, setOnline] = useState<boolean | null>(null)
   const [search, setSearch] = useState('')
 
@@ -39,15 +41,24 @@ export default function Navbar() {
   }, [])
 
   return (
-    <header className="h-16 bg-slate-900/60 backdrop-blur-xl border-b border-slate-800/60 flex items-center px-6 gap-4 shrink-0">
+    <header className="h-16 bg-slate-900/60 backdrop-blur-xl border-b border-slate-800/60 flex items-center px-4 md:px-6 gap-3 shrink-0">
+      {/* Mobile hamburger button */}
+      <button
+        onClick={toggleMobileMenu}
+        className="lg:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-colors"
+        aria-label="Toggle navigation menu"
+      >
+        <Menu className="w-5 h-5" />
+      </button>
+
       {/* Page title */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 shrink-0">
         <Activity className="w-4 h-4 text-brand-400" />
-        <h2 className="font-semibold text-slate-100">{title}</h2>
+        <h2 className="font-semibold text-slate-100 text-sm md:text-base">{title}</h2>
       </div>
 
       {/* Search */}
-      <div className="flex-1 max-w-md mx-auto relative">
+      <div className="hidden sm:block flex-1 max-w-md mx-auto relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
         <input
           type="text"
@@ -59,10 +70,22 @@ export default function Navbar() {
       </div>
 
       {/* Right side */}
-      <div className="flex items-center gap-3 ml-auto">
+      <div className="flex items-center gap-2 md:gap-3 ml-auto">
+        {/* Active Case indicator in navbar if available */}
+        {activeCaseTitle && (
+          <button
+            onClick={() => openCaseSelector()}
+            className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs bg-slate-800/70 hover:bg-slate-800 text-slate-300 border border-slate-700/60 transition-colors max-w-[160px]"
+            title={`Active Case: ${activeCaseTitle} (Click to switch)`}
+          >
+            <Folder className="w-3 h-3 text-brand-400 shrink-0" />
+            <span className="truncate font-medium">{activeCaseTitle}</span>
+          </button>
+        )}
+
         {/* Backend status */}
         <div
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${
             online === null
               ? 'text-slate-500 border-slate-700 bg-slate-800/30'
               : online
@@ -71,7 +94,9 @@ export default function Navbar() {
           }`}
         >
           {online ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
-          {online === null ? 'Connecting...' : online ? 'API Online' : 'API Offline'}
+          <span className="hidden xs:inline">
+            {online === null ? 'Connecting...' : online ? 'API Online' : 'API Offline'}
+          </span>
         </div>
 
         {/* Notifications placeholder */}
@@ -81,7 +106,7 @@ export default function Navbar() {
         </button>
 
         {/* Avatar */}
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
           FQ
         </div>
       </div>

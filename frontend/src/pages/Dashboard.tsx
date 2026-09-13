@@ -8,6 +8,7 @@ import {
 import { casesApi, analyticsApi } from '../lib/api'
 import { formatDateTime, getRiskLevel } from '../lib/utils'
 import { RiskBadge } from '../components/RiskBadge'
+import { useCase } from '../lib/CaseContext'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line, Legend
@@ -24,6 +25,7 @@ const STATUS_COLORS: Record<string, string> = {
 }
 
 export default function Dashboard() {
+  const { activeCaseId, setActiveCase } = useCase()
   const [cases, setCases] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -31,10 +33,17 @@ export default function Dashboard() {
     const load = async () => {
       try {
         const res = await casesApi.list({ limit: 100 })
-        setCases(res.data.items || [])
+        const loadedCases = res.data.items || []
+        setCases(loadedCases)
+        if (!activeCaseId && loadedCases.length > 0) {
+          setActiveCase(loadedCases[0].id, loadedCases[0].title)
+        }
       } catch {
         // Use mock data for dev
         setCases(MOCK_CASES)
+        if (!activeCaseId && MOCK_CASES.length > 0) {
+          setActiveCase(MOCK_CASES[0].id, MOCK_CASES[0].title)
+        }
       } finally {
         setLoading(false)
       }
@@ -69,7 +78,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto animate-slide-up">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-white text-glow">Operations Dashboard</h1>
           <p className="text-slate-400 text-sm mt-1">Forensic investigation platform overview</p>
@@ -81,7 +90,7 @@ export default function Dashboard() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
         {[
           { label: 'Total Cases',    value: totalCases,    icon: FolderOpen,     color: 'text-brand-400',   bg: 'bg-brand-500/10' },
           { label: 'Active Cases',   value: activeCases,   icon: Activity,       color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
@@ -200,51 +209,53 @@ export default function Dashboard() {
             <p className="text-slate-500 text-sm">No cases yet. <Link to="/cases/new" className="text-brand-400 hover:underline">Create your first case →</Link></p>
           </div>
         ) : (
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Status</th>
-                <th>Priority</th>
-                <th>Evidence</th>
-                <th>Entities</th>
-                <th>Created</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentCases.map(c => (
-                <tr key={c.id}>
-                  <td>
-                    <Link to={`/cases/${c.id}`} className="text-slate-200 hover:text-brand-300 transition-colors font-medium">
-                      {c.title}
-                    </Link>
-                    {c.investigator && <p className="text-xs text-slate-500 mt-0.5">{c.investigator}</p>}
-                  </td>
-                  <td>
-                    <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium border status-${c.status}`}>
-                      {c.status}
-                    </span>
-                  </td>
-                  <td>
-                    <RiskBadge score={
-                      c.priority === 'critical' ? 0.9 :
-                      c.priority === 'high' ? 0.6 :
-                      c.priority === 'medium' ? 0.35 : 0.1
-                    } />
-                  </td>
-                  <td><span className="text-slate-300">{c.evidence_count}</span></td>
-                  <td><span className="text-slate-300">{c.entity_count}</span></td>
-                  <td><span className="text-slate-500 text-xs">{formatDateTime(c.created_at)}</span></td>
-                  <td>
-                    <Link to={`/cases/${c.id}`} className="text-brand-400 hover:text-brand-300">
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
-                  </td>
+          <div className="overflow-x-auto -mx-5 px-5">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Status</th>
+                  <th>Priority</th>
+                  <th>Evidence</th>
+                  <th>Entities</th>
+                  <th>Created</th>
+                  <th></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {recentCases.map(c => (
+                  <tr key={c.id}>
+                    <td>
+                      <Link to={`/cases/${c.id}`} className="text-slate-200 hover:text-brand-300 transition-colors font-medium">
+                        {c.title}
+                      </Link>
+                      {c.investigator && <p className="text-xs text-slate-500 mt-0.5">{c.investigator}</p>}
+                    </td>
+                    <td>
+                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium border status-${c.status}`}>
+                        {c.status}
+                      </span>
+                    </td>
+                    <td>
+                      <RiskBadge score={
+                        c.priority === 'critical' ? 0.9 :
+                        c.priority === 'high' ? 0.6 :
+                        c.priority === 'medium' ? 0.35 : 0.1
+                      } />
+                    </td>
+                    <td><span className="text-slate-300">{c.evidence_count}</span></td>
+                    <td><span className="text-slate-300">{c.entity_count}</span></td>
+                    <td><span className="text-slate-500 text-xs">{formatDateTime(c.created_at)}</span></td>
+                    <td>
+                      <Link to={`/cases/${c.id}`} className="text-brand-400 hover:text-brand-300">
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

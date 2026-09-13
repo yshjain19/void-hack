@@ -9,12 +9,14 @@ import { formatDateTime, formatBytes, truncateHash } from '../lib/utils'
 import { RiskBadge } from '../components/RiskBadge'
 import CustodyChain from '../components/CustodyChain'
 import HashVerifier from '../components/HashVerifier'
+import { useCase } from '../lib/CaseContext'
 
 type Tab = 'overview' | 'evidence' | 'custody'
 
 export default function CaseDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { setActiveCase } = useCase()
   const [caseData, setCaseData] = useState<any>(null)
   const [evidence, setEvidence] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -30,9 +32,11 @@ export default function CaseDetail() {
         const [cRes, eRes] = await Promise.all([casesApi.get(id), evidenceApi.list(id)])
         setCaseData(cRes.data)
         setEvidence(eRes.data)
+        setActiveCase(id, cRes.data.title)
       } catch {
         setCaseData(MOCK_CASE)
         setEvidence(MOCK_EVIDENCE)
+        setActiveCase(id, MOCK_CASE.title)
       } finally {
         setLoading(false)
       }
@@ -75,7 +79,7 @@ export default function CaseDetail() {
   return (
     <div className="space-y-5 max-w-7xl mx-auto animate-slide-up">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
         <div className="flex items-start gap-4">
           <button onClick={() => navigate(-1)} className="btn-ghost p-2 mt-1">
             <ArrowLeft className="w-4 h-4" />
@@ -99,7 +103,7 @@ export default function CaseDetail() {
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2 shrink-0">
+        <div className="flex flex-wrap gap-2 shrink-0">
           <Link to={`/evidence/upload?case_id=${id}`} className="btn-ghost flex items-center gap-2 text-sm">
             <Upload className="w-4 h-4" /> Upload Evidence
           </Link>
@@ -228,58 +232,60 @@ export default function CaseDetail() {
               </Link>
             </div>
           ) : (
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Filename</th>
-                  <th>Type</th>
-                  <th>Size</th>
-                  <th>SHA-256 (partial)</th>
-                  <th>Status</th>
-                  <th>Uploaded</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {evidence.map(ev => (
-                  <tr key={ev.id}>
-                    <td>
-                      <span className="text-slate-200 font-medium">{ev.original_filename}</span>
-                      <p className="text-xs text-slate-500 mt-0.5">by {ev.uploaded_by}</p>
-                    </td>
-                    <td>
-                      <span className="px-2 py-0.5 rounded text-xs font-mono bg-slate-800 text-slate-400 border border-slate-700">
-                        {ev.file_type?.toUpperCase()}
-                      </span>
-                    </td>
-                    <td><span className="text-slate-400 text-sm">{formatBytes(ev.file_size)}</span></td>
-                    <td><code className="hash-text">{truncateHash(ev.sha256_hash)}</code></td>
-                    <td>
-                      {ev.parsed ? (
-                        <span className="text-emerald-400 text-xs flex items-center gap-1">
-                          <CheckCircle className="w-3 h-3" /> Parsed
-                        </span>
-                      ) : ev.parse_error ? (
-                        <span className="text-red-400 text-xs">Parse Error</span>
-                      ) : (
-                        <span className="text-amber-400 text-xs flex items-center gap-1">
-                          <Loader2 className="w-3 h-3 animate-spin" /> Processing
-                        </span>
-                      )}
-                    </td>
-                    <td><span className="text-slate-500 text-xs">{formatDateTime(ev.uploaded_at)}</span></td>
-                    <td>
-                      <button
-                        onClick={() => loadCustody(ev.id)}
-                        className="text-brand-400 hover:text-brand-300 text-xs flex items-center gap-1"
-                      >
-                        <Shield className="w-3 h-3" /> Custody
-                      </button>
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Filename</th>
+                    <th>Type</th>
+                    <th>Size</th>
+                    <th>SHA-256 (partial)</th>
+                    <th>Status</th>
+                    <th>Uploaded</th>
+                    <th>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {evidence.map(ev => (
+                    <tr key={ev.id}>
+                      <td>
+                        <span className="text-slate-200 font-medium">{ev.original_filename}</span>
+                        <p className="text-xs text-slate-500 mt-0.5">by {ev.uploaded_by}</p>
+                      </td>
+                      <td>
+                        <span className="px-2 py-0.5 rounded text-xs font-mono bg-slate-800 text-slate-400 border border-slate-700">
+                          {ev.file_type?.toUpperCase()}
+                        </span>
+                      </td>
+                      <td><span className="text-slate-400 text-sm">{formatBytes(ev.file_size)}</span></td>
+                      <td><code className="hash-text">{truncateHash(ev.sha256_hash)}</code></td>
+                      <td>
+                        {ev.parsed ? (
+                          <span className="text-emerald-400 text-xs flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3" /> Parsed
+                          </span>
+                        ) : ev.parse_error ? (
+                          <span className="text-red-400 text-xs">Parse Error</span>
+                        ) : (
+                          <span className="text-amber-400 text-xs flex items-center gap-1">
+                            <Loader2 className="w-3 h-3 animate-spin" /> Processing
+                          </span>
+                        )}
+                      </td>
+                      <td><span className="text-slate-500 text-xs">{formatDateTime(ev.uploaded_at)}</span></td>
+                      <td>
+                        <button
+                          onClick={() => loadCustody(ev.id)}
+                          className="text-brand-400 hover:text-brand-300 text-xs flex items-center gap-1"
+                        >
+                          <Shield className="w-3 h-3" /> Custody
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       )}

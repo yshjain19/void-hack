@@ -9,14 +9,20 @@ import {
 import { analyticsApi } from '../lib/api'
 import { RiskBadge, RiskBar } from '../components/RiskBadge'
 import { getRiskColor } from '../lib/utils'
+import { useCase } from '../lib/CaseContext'
 
 export default function AnalyticsView() {
   const { id: caseId } = useParams<{ id: string }>()
+  const { setActiveCase } = useCase()
   const [anomalies, setAnomalies] = useState<any[]>([])
   const [entities, setEntities] = useState<any[]>([])
   const [running, setRunning] = useState(false)
   const [loading, setLoading] = useState(true)
   const [runResult, setRunResult] = useState<any>(null)
+
+  useEffect(() => {
+    if (caseId) setActiveCase(caseId)
+  }, [caseId])
 
   const load = async () => {
     setLoading(true)
@@ -75,7 +81,7 @@ export default function AnalyticsView() {
   return (
     <div className="space-y-5 max-w-7xl mx-auto animate-slide-up">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Link to={`/cases/${caseId}`} className="btn-ghost p-2">
             <ArrowLeft className="w-4 h-4" />
@@ -98,7 +104,7 @@ export default function AnalyticsView() {
       {runResult && (
         <div className="glass p-4 border-l-4 border-brand-500 flex items-center gap-4 animate-fade-in">
           <TrendingUp className="w-5 h-5 text-brand-400 shrink-0" />
-          <div className="flex gap-6 text-sm">
+          <div className="flex flex-wrap gap-4 md:gap-6 text-sm">
             <div><span className="text-slate-500">Total Records:</span> <strong className="text-slate-200">{runResult.total_records}</strong></div>
             <div><span className="text-slate-500">Anomalies:</span> <strong className="text-red-400">{runResult.anomalies_found}</strong></div>
             <div><span className="text-slate-500">Rate:</span> <strong className="text-amber-400">{(runResult.anomaly_rate * 100).toFixed(2)}%</strong></div>

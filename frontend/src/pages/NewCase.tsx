@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FolderPlus, ArrowLeft, Loader2, Tag } from 'lucide-react'
 import { casesApi } from '../lib/api'
+import { useCase } from '../lib/CaseContext'
 
 const STATUS_OPTIONS = ['open', 'active', 'pending']
 const PRIORITY_OPTIONS = ['low', 'medium', 'high', 'critical']
 
 export default function NewCase() {
   const navigate = useNavigate()
+  const { setActiveCase } = useCase()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -28,6 +30,7 @@ export default function NewCase() {
     setError(null)
     try {
       const res = await casesApi.create(form)
+      setActiveCase(res.data.id, res.data.title || form.title)
       navigate(`/cases/${res.data.id}`)
     } catch (err: any) {
       setError(err?.response?.data?.detail || 'Failed to create case')

@@ -3,9 +3,11 @@ import { useParams, Link } from 'react-router-dom'
 import { ArrowLeft, FileText, Plus, Loader2, RefreshCw, Download } from 'lucide-react'
 import { reportsApi } from '../lib/api'
 import ReportDownloader from '../components/ReportDownloader'
+import { useCase } from '../lib/CaseContext'
 
 export default function ReportsView() {
   const { id: caseId } = useParams<{ id: string }>()
+  const { setActiveCase } = useCase()
   const [reports, setReports] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [generating, setGenerating] = useState(false)
@@ -16,6 +18,10 @@ export default function ReportsView() {
     ai_narrative: true,
     generated_by: 'analyst',
   })
+
+  useEffect(() => {
+    if (caseId) setActiveCase(caseId)
+  }, [caseId])
 
   const load = async () => {
     setLoading(true)
@@ -46,7 +52,7 @@ export default function ReportsView() {
   return (
     <div className="space-y-5 max-w-4xl mx-auto animate-slide-up">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Link to={`/cases/${caseId}`} className="btn-ghost p-2">
             <ArrowLeft className="w-4 h-4" />

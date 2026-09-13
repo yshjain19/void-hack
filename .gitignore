@@ -32,6 +32,7 @@ wheels/
 node_modules/
 dist/
 .vite/
+*.tsbuildinfo
 
 # Environment and secrets
 .env

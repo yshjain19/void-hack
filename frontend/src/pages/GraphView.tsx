@@ -10,6 +10,7 @@ import { Network, RefreshCw, Loader2, ArrowLeft, Zap, Users } from 'lucide-react
 import { graphApi } from '../lib/api'
 import EntityNode from '../components/EntityNode'
 import { getRiskColor } from '../lib/utils'
+import { useCase } from '../lib/CaseContext'
 
 const nodeTypes = { entity: EntityNode }
 
@@ -27,12 +28,17 @@ function layoutNodes(nodes: any[], edges: any[]) {
 
 export default function GraphView() {
   const { id: caseId } = useParams<{ id: string }>()
+  const { setActiveCase } = useCase()
   const [nodes, setNodes, onNodesChange] = useNodesState([])
   const [edges, setEdges, onEdgesChange] = useEdgesState([])
   const [loading, setLoading] = useState(true)
   const [building, setBuilding] = useState(false)
   const [stats, setStats] = useState({ nodes: 0, edges: 0 })
   const [selected, setSelected] = useState<any>(null)
+
+  useEffect(() => {
+    if (caseId) setActiveCase(caseId)
+  }, [caseId])
 
   const loadGraph = async () => {
     setLoading(true)
@@ -103,7 +109,7 @@ export default function GraphView() {
   return (
     <div className="h-[calc(100vh-10rem)] flex flex-col gap-4">
       {/* Header */}
-      <div className="flex items-center justify-between shrink-0">
+      <div className="flex flex-wrap items-center justify-between gap-3 shrink-0">
         <div className="flex items-center gap-3">
           <Link to={`/cases/${caseId}`} className="btn-ghost p-2">
             <ArrowLeft className="w-4 h-4" />
@@ -159,7 +165,7 @@ export default function GraphView() {
 
         {/* Selected node panel */}
         {selected && (
-          <div className="absolute top-4 right-4 w-64 glass p-4 animate-slide-up">
+          <div className="absolute top-4 right-4 max-w-[calc(100vw-3rem)] w-64 glass p-4 animate-slide-up z-10">
             <div className="flex justify-between items-start mb-3">
               <span className="text-xs text-brand-400 uppercase tracking-wider font-semibold">
                 {selected.data?.type}

@@ -1,14 +1,20 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { ArrowLeft, Brain, Send, Loader2, Zap } from 'lucide-react'
 import { aiApi } from '../lib/api'
 import LLMReasoningPanel from '../components/LLMReasoningPanel'
+import { useCase } from '../lib/CaseContext'
 
 export default function AIInvestigator() {
   const { id: caseId } = useParams<{ id: string }>()
+  const { setActiveCase } = useCase()
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<any>(null)
   const [history, setHistory] = useState<Array<{ question?: string; result: any }>>([])
+
+  useEffect(() => {
+    if (caseId) setActiveCase(caseId)
+  }, [caseId])
 
   const investigate = async (question?: string) => {
     setLoading(true)
@@ -43,7 +49,7 @@ export default function AIInvestigator() {
   return (
     <div className="space-y-5 max-w-4xl mx-auto animate-slide-up">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Link to={`/cases/${caseId}`} className="btn-ghost p-2">
             <ArrowLeft className="w-4 h-4" />

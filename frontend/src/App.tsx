@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Sidebar from './components/Sidebar'
 import Navbar from './components/Navbar'
+import CaseSelectorModal from './components/CaseSelectorModal'
+import ToolRedirect from './components/ToolRedirect'
 import Dashboard from './pages/Dashboard'
 import CaseList from './pages/CaseList'
 import NewCase from './pages/NewCase'
@@ -10,30 +12,63 @@ import AnalyticsView from './pages/AnalyticsView'
 import AIInvestigator from './pages/AIInvestigator'
 import ReportsView from './pages/ReportsView'
 import EvidenceUpload from './pages/EvidenceUpload'
+import { CaseProvider, useCase } from './lib/CaseContext'
+
+function AppLayout() {
+  const { mobileMenuOpen, setMobileMenuOpen } = useCase()
+
+  return (
+    <div className="flex h-screen overflow-hidden bg-slate-950 relative">
+      {/* Mobile Drawer Backdrop */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden animate-fade-in"
+          onClick={() => setMobileMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Navigation Sidebar */}
+      <Sidebar />
+
+      {/* Main Content Area */}
+      <div className="flex flex-col flex-1 overflow-hidden min-w-0">
+        <Navbar />
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 animate-fade-in">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/cases" element={<CaseList />} />
+            <Route path="/cases/new" element={<NewCase />} />
+            <Route path="/cases/:id" element={<CaseDetail />} />
+            <Route path="/cases/:id/graph" element={<GraphView />} />
+            <Route path="/cases/:id/analytics" element={<AnalyticsView />} />
+            <Route path="/cases/:id/ai" element={<AIInvestigator />} />
+            <Route path="/cases/:id/reports" element={<ReportsView />} />
+            <Route path="/evidence/upload" element={<EvidenceUpload />} />
+
+            {/* Direct Tool Routes */}
+            <Route path="/graph" element={<ToolRedirect tool="graph" title="Entity Graph" />} />
+            <Route path="/analytics" element={<ToolRedirect tool="analytics" title="Analytics" />} />
+            <Route path="/ai" element={<ToolRedirect tool="ai" title="AI Investigator" />} />
+            <Route path="/reports" element={<ToolRedirect tool="reports" title="Reports" />} />
+
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </main>
+      </div>
+
+      {/* Global Case Selector Dialog */}
+      <CaseSelectorModal />
+    </div>
+  )
+}
 
 export default function App() {
   return (
     <BrowserRouter>
-      <div className="flex h-screen overflow-hidden bg-slate-950">
-        <Sidebar />
-        <div className="flex flex-col flex-1 overflow-hidden">
-          <Navbar />
-          <main className="flex-1 overflow-y-auto p-6 animate-fade-in">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/cases" element={<CaseList />} />
-              <Route path="/cases/new" element={<NewCase />} />
-              <Route path="/cases/:id" element={<CaseDetail />} />
-              <Route path="/cases/:id/graph" element={<GraphView />} />
-              <Route path="/cases/:id/analytics" element={<AnalyticsView />} />
-              <Route path="/cases/:id/ai" element={<AIInvestigator />} />
-              <Route path="/cases/:id/reports" element={<ReportsView />} />
-              <Route path="/evidence/upload" element={<EvidenceUpload />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </main>
-        </div>
-      </div>
+      <CaseProvider>
+        <AppLayout />
+      </CaseProvider>
     </BrowserRouter>
   )
 }
