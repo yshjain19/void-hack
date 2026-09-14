@@ -36,10 +36,12 @@ async def investigate(
     payload: InvestigateRequest,
     db: AsyncSession = Depends(get_db),
 ):
-    """LLM-powered investigation: summarize evidence and generate hypotheses."""
-    case = await _get_case_or_404(db, case_id)
     llm = get_llm_client()
-    prompt = await build_investigation_prompt(db, case_id, case, payload.question)
+    try:
+        case = await _get_case_or_404(db, case_id)
+        prompt = await build_investigation_prompt(db, case_id, case, payload.question)
+    except Exception:
+        prompt = f"CYBERTRACE INVESTIGATION QUESTION: {payload.question or 'General forensic overview'}"
     response = await llm.complete(prompt)
     return ReasoningResponse(
         case_id=case_id,

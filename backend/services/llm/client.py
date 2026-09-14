@@ -19,28 +19,207 @@ class MockLLMClient(BaseLLMClient):
     """Deterministic mock for development/testing."""
 
     MOCK_RESPONSES = [
+        # 1. Shell company / UBO
         {
-            "reasoning": (
-                "Based on the evidence reviewed, multiple high-risk entities have been identified. "
-                "The transaction patterns exhibit significant deviation from baseline behavior, "
-                "with several accounts showing velocity anomalies and unusual cross-border transfers. "
-                "The email chain contains indicators of social engineering, including domain spoofing "
-                "and mismatched Reply-To addresses."
-            ),
-            "hypothesis": "Coordinated fraud ring operating across at least 3 jurisdictions with inside knowledge of target organization.",
+            "topic": "shell",
+            "keywords": ["shell", "apex", "ubo", "owner", "beneficial", "layering", "bvi", "vance"],
+            "reasoning": "Ingestion of corporate registry filings reveals Apex Global Holdings Ltd was incorporated in the British Virgin Islands with zero physical premises or operational payroll, sharing an address and nominee director with 42 offshore entities. Bank records confirm that 98.4% of received funds are transferred out within 72 hours, demonstrating textbook pass-through shell layering designed to conceal Alexander Vance's beneficial ownership.",
+            "hypothesis": "Apex Global Holdings Ltd functions as a classic fraudulent conduit vehicle utilized to shield beneficial owner Alexander Vance from corporate liabilities.",
+            "confidence": "high",
+            "next_steps": [
+                "File Section 238 BVI Commercial Court disclosure order for register of members",
+                "Subpoena bank signature cards and KYC onboarding files from registered agent",
+                "Request Alexander Vance tax declarations via IRS/HMRC bilateral treaty protocol",
+                "Prepare legal petition to pierce corporate veil under fraudulent trading doctrines",
+            ],
+            "content": "Detailed shell company layering analysis completed by CyberTrace AI.",
+            "summary": "Shell company conduit confirmed; corporate veil piercing recommended.",
+        },
+        # 2. Nominee Director
+        {
+            "topic": "nominee",
+            "keywords": ["nominee", "elena", "rostova", "director", "strawman", "cyprus", "signature"],
+            "reasoning": "Cross-referencing corporate registers connects Elena Rostova to 43 corporate entities across Cyprus, St. Kitts, and BVI. Digital forensic extraction of authorization emails shows electronic signature hashes stamped from IP addresses in London and Panama, wholly inconsistent with Rostova's declared physical residence in Limassol, indicating she acts purely as a paid strawman.",
+            "hypothesis": "Elena Rostova is a nominee strawman executing pre-drafted wire instructions without fiduciary oversight or knowledge of underlying asset movements.",
+            "confidence": "high",
+            "next_steps": [
+                "Depose Elena Rostova regarding power of attorney and management delegation agreements",
+                "Subpoena corporate service provider fee ledgers for nominee compensation records",
+                "Issue INTERPOL Red Notice intelligence sharing with Cyprus Financial Intelligence Unit (MOKAS)",
+                "Cross-verify email PGP key generation timestamps against signing dates",
+            ],
+            "content": "Nominee director strawman attribution completed by CyberTrace AI.",
+            "summary": "Strawman nominee director identified with 43 overlapping entity registrations.",
+        },
+        # 3. Escrow / Circular routing
+        {
+            "topic": "escrow",
+            "keywords": ["escrow", "barclays", "circular", "round-trip", "kickback", "meridian", "trust"],
+            "reasoning": "Transaction timestamp graph tracing reveals a closed cycle: Barclays Escrow Acc ****9104 disbursed $4,200,000 to Meridian Trade Partners, from which $850,000 was systematically refunded back to Vance Trust LLC under reference 'AGH-LGT-2026'. This circular flow establishes an intentional round-tripping kickback scheme disguised as commercial logistics billing.",
+            "hypothesis": "A circular money laundering loop was operated using Barclays Escrow to generate apparent arm's-length payments while siphoning private kickbacks to Vance Trust.",
+            "confidence": "high",
+            "next_steps": [
+                "Secure formal freezing injunction on Vance Trust LLC Delaware banking assets",
+                "Demand correspondent settlement tickets from Barclays London corporate clearing desk",
+                "Subpoena general ledgers and journal entries from Meridian Trade Partners",
+                "Calculate disgorgement quantum and clawback liabilities under fraudulent conveyance statutes",
+            ],
+            "content": "Circular escrow round-tripping analysis generated by CyberTrace AI.",
+            "summary": "Circular $4.2M escrow loop detected with verified $850,000 kickback to beneficial owner.",
+        },
+        # 4. Cayman / Offshore Drain
+        {
+            "topic": "cayman",
+            "keywords": ["cayman", "drain", "offshore", "flight", "freeze", "3310"],
+            "reasoning": "SWIFT MT103 confirmation telemetry proves $3,100,000 was liquidated and routed into Cayman National Bank account ****3310. Notice of forensic audit inquiries triggered an automated attempt to route funds to a secondary numbered account in Zurich, which was halted by compliance velocity tripwires.",
+            "hypothesis": "Account ****3310 serves as the primary capital flight destination for proceeds stripped from corporate operations.",
+            "confidence": "high",
+            "next_steps": [
+                "Transmit urgent Mareva worldwide freezing injunction to Grand Court of the Cayman Islands",
+                "Coordinate with Cayman Islands Monetary Authority (CIMA) enforcement branch",
+                "Obtain mirror image forensic clone of SWIFT terminal audit logs",
+                "Appoint interim joint provisional liquidators over depository holdings",
+            ],
+            "content": "Offshore depository drain analysis generated by CyberTrace AI.",
+            "summary": "Cayman National Bank account ****3310 identified as destination of $3.1M capital flight.",
+        },
+        # 5. IP / Tor Proxy
+        {
+            "topic": "ip",
+            "keywords": ["ip", "tor", "proxy", "194", "network", "login", "hostinger"],
+            "reasoning": "NetFlow telemetry and authentication audit logs reveal banking portal logins originating from Hostinger Tor exit node 194.26.29.112 in Panama. The session bypassed secondary verification via a compromised session cookie, yet retained unique WebGL canvas fingerprint hashes that link directly to administrative workstations at London headquarters.",
+            "hypothesis": "Adversaries utilized Hostinger Tor bulletproof proxy infrastructure to mask geographic origin during unauthorized wire authorizations.",
             "confidence": "medium-high",
             "next_steps": [
-                "Subpoena financial records for accounts flagged by Isolation Forest",
-                "Cross-reference IP addresses with known threat intelligence feeds",
-                "Interview account holders for transactions >$50,000",
-                "Engage international liaison for cross-border entities",
+                "Serve 2703(d) court order on Hostinger International for VPS lease and billing records",
+                "Correlate Tor circuit creation timestamps with ISP upstream NetFlow telemetry",
+                "Extract hardware canvas fingerprints and WebGL vendor strings from session logs",
+                "Inspect physical facility access badges at London headquarters for concurrent presence",
             ],
-            "content": "Investigation summary generated by CyberTrace AI (mock mode).",
-            "summary": "High-risk coordinated fraud pattern detected across evidence artifacts.",
-        }
+            "content": "Network telemetry and Tor proxy attribution generated by CyberTrace AI.",
+            "summary": "Tor exit node 194.26.29.112 attributed to executive workstation canvas fingerprints.",
+        },
+        # 6. Email / BEC
+        {
+            "topic": "email",
+            "keywords": ["email", "eml", "bec", "spoof", "inbox", "transfers@", "proton", "dkim"],
+            "reasoning": "Header inspection of executive_inbox_export_intercept.eml reveals the domain apex-holdings.ch was registered using an anonymized Swiss registrar 48 hours prior to invoice issuance. While SPF passed due to attacker-controlled DNS, DKIM public keys matched a disposable ProtonMail bridge account, confirming targeted executive impersonation.",
+            "hypothesis": "A targeted Business Email Compromise (BEC) attack was mounted via lookalike domain apex-holdings.ch to authorize fraudulent escrow disbursements.",
+            "confidence": "high",
+            "next_steps": [
+                "Issue disclosure request to Proton AG under Swiss Postal and Telecoms Act (SPTA)",
+                "Pull registrar WHOIS history and credit card transaction identifiers for apex-holdings.ch",
+                "Enforce global perimeter block on apex-holdings.ch and associated MX mail exchanges",
+                "Conduct live memory dump and forensic triage on CFO laptop for keylogger artifacts",
+            ],
+            "content": "Email header forensics and spoofing attribution generated by CyberTrace AI.",
+            "summary": "Executive impersonation scheme proven via spoofed domain apex-holdings.ch.",
+        },
+        # 7. CTR Structuring
+        {
+            "topic": "structuring",
+            "keywords": ["structuring", "ctr", "threshold", "10000", "cash", "smurfing", "aml"],
+            "reasoning": "Transaction clustering in wire_transfers_2026_q3_apex.xlsx isolates 6 consecutive outbound transfers of exactly $9,950 within an 8-hour window across 3 regional branches. Statistical Chi-Square testing confirms deliberate distribution clustering just beneath the $10,000 statutory BSA reporting threshold (p < 0.0001).",
+            "hypothesis": "Systematic structuring was executed to deliberately evade bank Currency Transaction Reporting (CTR) and BSA compliance triggers.",
+            "confidence": "high",
+            "next_steps": [
+                "File mandatory FinCEN Form 111 (SAR) documenting intentional structuring violations",
+                "Subpoena bank teller surveillance recordings and counter deposit slips",
+                "Depose branch compliance supervisors regarding manual AML hold overrides",
+                "Refer findings for statutory prosecution under 31 U.S.C. § 5324",
+            ],
+            "content": "Anti-Money Laundering structuring assessment generated by CyberTrace AI.",
+            "summary": "Statutory CTR structuring violation established across 6 sequential $9,950 transfers.",
+        },
+        # 8. Chain of Custody
+        {
+            "topic": "custody",
+            "keywords": ["custody", "chain", "hash", "sha256", "admissibility", "court", "iso"],
+            "reasoning": "All 4 evidence artifacts exhibit contiguous SHA-256 cryptographic parent-child block hashes conforming to ISO/IEC 27037 standards. Verification against initial seizure master images confirms 0-byte drift, establishing complete legal chain of custody and precluding spoliation objections in judicial proceedings.",
+            "hypothesis": "Evidence handling protocols satisfy federal and international standards for digital forensics and court admissibility.",
+            "confidence": "high",
+            "next_steps": [
+                "Generate certified Federal Rule of Evidence 902(11) self-authenticating affidavit",
+                "Attach cryptographic block sequence proof to pre-trial evidentiary exhibits",
+                "Prepare expert witness proffer regarding automated SHA-256 integrity pipeline",
+                "File motion in limine to establish prima facie authenticity of electronic records",
+            ],
+            "content": "Chain-of-custody and legal admissibility evaluation generated by CyberTrace AI.",
+            "summary": "Cryptographic custody chain certified under ISO/IEC 27037 standards.",
+        },
+        # 9. Phantom Invoicing
+        {
+            "topic": "invoice",
+            "keywords": ["invoice", "phantom", "vendor", "bol", "shipping", "freight", "meridian"],
+            "reasoning": "Cross-referencing International Maritime Organization (IMO) AIS vessel telemetry demonstrates container numbers on invoice BOL-8842-HK correspond to dry-bulk barges operating in inland riverways, incapable of carrying the billed oceanic container cargo. Furthermore, remittance cleared 4 days before invoice generation.",
+            "hypothesis": "Meridian Trade Partners generated fictitious freight invoices totaling $8.7M to substantiate fraudulent corporate fund transfers.",
+            "confidence": "high",
+            "next_steps": [
+                "Subpoena bill of lading customs declarations from Hong Kong Maritime Department",
+                "Request terminal container gate interchange receipts from discharge ports",
+                "Interview procurement officers regarding vendor onboarding due diligence files",
+                "File civil recovery action for commercial fraud and unjust enrichment",
+            ],
+            "content": "Phantom vendor invoicing and fictitious freight audit completed by CyberTrace AI.",
+            "summary": "Fictitious $8.7M freight invoicing proven through maritime vessel telemetry.",
+        },
+        # 10. Crypto Wash Trading
+        {
+            "topic": "crypto",
+            "keywords": ["crypto", "bitcoin", "tether", "usdt", "wash", "blockchain", "wallet"],
+            "reasoning": "Blockchain ledger tracing reveals fiat transfers from target accounts were converted into USDT via offshore OTC desks, followed by 18 rapid peeling-chain hops through decentralized automated market makers within 30 minutes, before settling into a 3-of-5 cold storage multisig wallet.",
+            "hypothesis": "Decentralized liquidity protocols were utilized as a secondary layering mechanism to sever the forensic fiat trail.",
+            "confidence": "medium-high",
+            "next_steps": [
+                "Issue grand jury subpoenas to centralized exchanges for OTC broker KYC dossiers",
+                "Deploy graph clustering heuristics across destination multisig addresses",
+                "Submit formal freezing request to Tether contract administrator for blacklist lock",
+                "Draft ex parte seizure warrant for private key access credentials",
+            ],
+            "content": "Cryptocurrency tracing and decentralized layering analysis generated by CyberTrace AI.",
+            "summary": "On-chain peeling chain identified moving fiat proceeds through USDT liquidity pools.",
+        },
+        # 11. Subpoenas & Grand Jury
+        {
+            "topic": "subpoena",
+            "keywords": ["subpoena", "grand jury", "warrant", "legal", "statute", "indictment"],
+            "reasoning": "Corroborated digital evidence meets the probable cause threshold for violations of 18 U.S.C. § 1343 (Wire Fraud), 18 U.S.C. § 1956 (Money Laundering), and 18 U.S.C. § 371 (Conspiracy). The evidence nexus directly connects electronic authorization signatures, offshore shell vehicles, and beneficial ownership kickbacks.",
+            "hypothesis": "Substantial probable cause exists to issue federal grand jury subpoenas and seizure warrants across 4 banking institutions.",
+            "confidence": "high",
+            "next_steps": [
+                "Issue Rule 17(c) grand jury subpoenas to Barclays, Deutsche Bank, and correspondent institutions",
+                "Prepare Title 18 search and seizure warrants for corporate cloud repositories",
+                "Schedule formal proffer sessions with whistleblowers and compliance analysts",
+                "Submit prosecution briefing memorandum to United States Attorney's Office",
+            ],
+            "content": "Prosecutorial strategy and grand jury subpoena recommendations generated by CyberTrace AI.",
+            "summary": "Federal grand jury subpoena package prepared under 18 U.S.C. §§ 1343, 1956, and 371.",
+        },
+        # 12. General Synthesis
+        {
+            "topic": "general",
+            "keywords": ["summary", "overview", "what happened", "explain", "case", "help", "who"],
+            "reasoning": "Ingested bank statements, email headers, and corporate registry records establish an orchestrated multi-stage asset diversion. Capital was extracted using inflated invoices, routed through nominee-held BVI conduits, layered through UK escrow vehicles, and accumulated in offshore depositories with partial returns to beneficial owner trusts.",
+            "hypothesis": "Coordinated corporate fraud and illicit capital flight orchestrated via nominee-controlled BVI shell entities and layered escrow accounts.",
+            "confidence": "high",
+            "next_steps": [
+                "Execute international freezing orders across UK and Cayman depository accounts",
+                "Depose nominee directors and corporate formation agents under oath",
+                "Transmit bilateral mutual legal assistance requests to BVI and Cayman authorities",
+                "Finalize certified forensic examination dossier for judicial submission",
+            ],
+            "content": "Comprehensive forensic investigation synthesis generated by CyberTrace AI.",
+            "summary": "Coordinated multi-jurisdictional fraud scheme confirmed with $4.2M diversion.",
+        },
     ]
 
     async def complete(self, prompt: str) -> dict[str, Any]:
+        prompt_lower = prompt.lower()
+        # Check keyword matches
+        for item in self.MOCK_RESPONSES:
+            if any(kw in prompt_lower for kw in item.get("keywords", [])):
+                return item
+        # Fallback to random response if no keyword matches
         return random.choice(self.MOCK_RESPONSES)
 
 
