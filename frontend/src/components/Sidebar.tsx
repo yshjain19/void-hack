@@ -36,11 +36,11 @@ export default function Sidebar() {
   const currentCaseId = (urlMatch && urlMatch[1] !== 'new') ? urlMatch[1] : activeCaseId
 
   const handleToolClick = (tool: ToolItem) => {
+    setMobileMenuOpen(false)
     if (currentCaseId) {
-      setMobileMenuOpen(false)
       navigate(`/cases/${currentCaseId}${tool.path}`)
     } else {
-      openCaseSelector(tool)
+      navigate(tool.path)
     }
   }
 
@@ -155,21 +155,18 @@ export default function Sidebar() {
                 key={tool.label}
                 onClick={() => handleToolClick(tool)}
                 className={cn(
-                  'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 text-left',
+                  'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 text-left group',
                   active
                     ? 'bg-red-50 text-red-700 border border-red-200 shadow-sm'
                     : 'text-zinc-600 hover:text-zinc-950 hover:bg-zinc-100/80'
                 )}
               >
-                <Icon className={cn('w-4 h-4 shrink-0', active ? 'text-red-600' : 'text-zinc-500')} />
+                <Icon className={cn('w-4 h-4 shrink-0 transition-colors', active ? 'text-red-600' : 'text-zinc-500 group-hover:text-zinc-800')} />
                 <span className="truncate">{tool.label}</span>
-                {active ? (
-                  <ChevronRight className="w-3.5 h-3.5 ml-auto text-red-600 shrink-0" />
-                ) : (
-                  <span className="ml-auto text-[10px] bg-zinc-100 text-zinc-500 border border-zinc-200 px-1.5 py-0.5 rounded font-mono shrink-0 font-medium">
-                    {currentCaseId ? 'ready' : 'select'}
-                  </span>
-                )}
+                <ChevronRight className={cn(
+                  'w-3.5 h-3.5 ml-auto shrink-0 transition-transform duration-150',
+                  active ? 'text-red-600' : 'text-zinc-400 group-hover:text-zinc-700 group-hover:translate-x-0.5'
+                )} />
               </button>
             )
           })}

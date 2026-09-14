@@ -3,10 +3,16 @@ import { useParams, Link } from 'react-router-dom'
 import {
   ArrowLeft, Brain, Send, Loader2, Zap, Sparkles,
   ShieldCheck, AlertTriangle, ListChecks, RotateCcw,
-  Download, MessageSquare, Bot, User, CheckCircle2
+  Download, MessageSquare, Bot, User, CheckCircle2,
+  KeyRound, Shield
 } from 'lucide-react'
 import { aiApi } from '../lib/api'
 import { useCase } from '../lib/CaseContext'
+import ApiKeyModal from '../components/ApiKeyModal'
+import {
+  getAiConfig, callDirectLLM, AIConfig,
+  PROVIDER_DEFAULTS
+} from '../lib/aiConfig'
 
 export interface ChatMessage {
   id: string
@@ -18,6 +24,7 @@ export interface ChatMessage {
     confidence?: string
     reasoning?: string
     next_steps?: string[]
+    providerLabel?: string
   }
   timestamp: string
 }
@@ -216,6 +223,15 @@ export default function AIInvestigator() {
   const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  const [apiKeyModalOpen, setApiKeyModalOpen] = useState(false)
+  const [aiConfig, setAiConfig] = useState<AIConfig>(getAiConfig())
+
+  useEffect(() => {
+    const handleConfigChange = () => setAiConfig(getAiConfig())
+    window.addEventListener('cybertrace_ai_config_changed', handleConfigChange)
+    return () => window.removeEventListener('cybertrace_ai_config_changed', handleConfigChange)
+  }, [])
+
   // Initial welcome message from CyberTrace AI
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -228,6 +244,7 @@ export default function AIInvestigator() {
         confidence: FORENSIC_KNOWLEDGE_BASE[11].confidence,
         reasoning: FORENSIC_KNOWLEDGE_BASE[11].reasoning,
         next_steps: FORENSIC_KNOWLEDGE_BASE[11].next_steps,
+        providerLabel: 'CyberTrace Neural Forensics',
       },
     },
   ])
@@ -256,9 +273,78 @@ export default function AIInvestigator() {
     setInputQuestion('')
     setLoading(true)
 
-    // Match local forensic response first
+    const currentConfig = getAiConfig()
     const matched = matchForensicKnowledge(trimmed)
 
+    // 1. Live API Key Call (Gemini, OpenAI, Anthropic)
+    if (currentConfig.provider !== 'mock' && currentConfig.apiKey) {
+      // First attempt via Backend API
+      try {
+        const targetCaseId = caseId || 'case-01'
+        const res = await aiApi.investigate(targetCaseId, {
+          question: trimmed,
+          api_key: currentConfig.apiKey,
+          provider: currentConfig.provider,
+          model: currentConfig.model,
+        })
+        const apiData = res.data
+        if (apiData && (apiData.reasoning || apiData.hypothesis)) {
+          const aiMsg: ChatMessage = {
+            id: 'ai-' + Date.now(),
+            sender: 'ai',
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            data: {
+              summary: apiData.summary || matched.summary,
+              hypothesis: apiData.hypothesis || matched.hypothesis,
+              confidence: apiData.confidence || matched.confidence,
+              reasoning: apiData.reasoning || matched.reasoning,
+              next_steps: apiData.next_steps && apiData.next_steps.length > 0 ? apiData.next_steps : matched.next_steps,
+              providerLabel: `Live ${PROVIDER_DEFAULTS[currentConfig.provider]?.name || currentConfig.provider} (${currentConfig.model})`,
+            },
+          }
+          setMessages(prev => [...prev, aiMsg])
+          setLoading(false)
+          return
+        }
+      } catch (backendErr) {
+        // Backend not reachable, try direct browser LLM call!
+        try {
+          const directData = await callDirectLLM(trimmed, currentConfig)
+          const aiMsg: ChatMessage = {
+            id: 'ai-' + Date.now(),
+            sender: 'ai',
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            data: {
+              ...directData,
+              providerLabel: `Live Direct ${directData.providerLabel || currentConfig.provider}`,
+            },
+          }
+          setMessages(prev => [...prev, aiMsg])
+          setLoading(false)
+          return
+        } catch (directErr: any) {
+          // Both failed, notify user and use matched knowledge
+          const aiMsg: ChatMessage = {
+            id: 'ai-' + Date.now(),
+            sender: 'ai',
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            data: {
+              summary: `[Notice: ${directErr?.message || 'API connection failed'} — Falling back to CyberTrace Knowledge]: ${matched.summary}`,
+              hypothesis: matched.hypothesis,
+              confidence: matched.confidence,
+              reasoning: matched.reasoning,
+              next_steps: matched.next_steps,
+              providerLabel: 'CyberTrace Knowledge Fallback',
+            },
+          }
+          setMessages(prev => [...prev, aiMsg])
+          setLoading(false)
+          return
+        }
+      }
+    }
+
+    // 2. Default flow with backend or built-in forensic intelligence
     try {
       if (caseId) {
         const res = await aiApi.investigate(caseId, { question: trimmed })
@@ -274,6 +360,7 @@ export default function AIInvestigator() {
               confidence: apiData.confidence || matched.confidence,
               reasoning: apiData.reasoning || matched.reasoning,
               next_steps: apiData.next_steps && apiData.next_steps.length > 0 ? apiData.next_steps : matched.next_steps,
+              providerLabel: 'CyberTrace Neural Forensics',
             },
           }
           setMessages(prev => [...prev, aiMsg])
@@ -297,6 +384,7 @@ export default function AIInvestigator() {
           confidence: matched.confidence,
           reasoning: matched.reasoning,
           next_steps: matched.next_steps,
+          providerLabel: 'CyberTrace Neural Forensics',
         },
       }
       setMessages(prev => [...prev, aiMsg])
@@ -380,6 +468,21 @@ export default function AIInvestigator() {
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setApiKeyModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-800 shadow-xs hover:border-red-300 transition-all cursor-pointer"
+            title="Configure Live LLM API Keys (Gemini, OpenAI, Anthropic)"
+          >
+            <KeyRound className="w-3.5 h-3.5 text-red-600" />
+            <span className="hidden sm:inline">
+              {PROVIDER_DEFAULTS[aiConfig.provider]?.name.split(' ')[0]} {aiConfig.apiKey ? 'Key Active' : '(Offline)'}
+            </span>
+            <span className="sm:hidden">Keys</span>
+            <span
+              className={`w-2 h-2 rounded-full ${aiConfig.apiKey ? 'bg-emerald-500 shadow-xs shadow-emerald-500/50' : 'bg-amber-500'}`}
+              title={aiConfig.apiKey ? 'Live API key is active' : 'Using built-in offline engine'}
+            />
+          </button>
           <button
             onClick={clearChat}
             className="btn-ghost flex items-center gap-1.5 text-xs py-1.5 px-3 border border-zinc-200"
@@ -509,6 +612,23 @@ export default function AIInvestigator() {
                     </div>
                   </div>
                 )}
+
+                {/* AI Model Attribution Pill */}
+                {msg.data?.providerLabel && (
+                  <div className="pt-2 border-t border-zinc-100 flex items-center justify-between text-[11px] text-zinc-400 font-mono">
+                    <span className="flex items-center gap-1.5 text-zinc-500 font-medium">
+                      <Sparkles className="w-3 h-3 text-red-500 shrink-0" />
+                      <span>{msg.data.providerLabel}</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setApiKeyModalOpen(true)}
+                      className="text-[10px] text-red-600 hover:text-red-700 font-semibold cursor-pointer underline-offset-2 hover:underline"
+                    >
+                      Change Engine / Key
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -562,6 +682,13 @@ export default function AIInvestigator() {
           <Send className="w-3.5 h-3.5" />
         </button>
       </div>
+
+      {/* API Key Configuration Modal */}
+      <ApiKeyModal
+        isOpen={apiKeyModalOpen}
+        onClose={() => setApiKeyModalOpen(false)}
+        onSaved={() => setAiConfig(getAiConfig())}
+      />
     </div>
   )
 }

@@ -4,6 +4,7 @@ import { ArrowLeft, FileText, Plus, Loader2, RefreshCw } from 'lucide-react'
 import { reportsApi } from '../lib/api'
 import ReportDownloader from '../components/ReportDownloader'
 import { useCase } from '../lib/CaseContext'
+import { getAiConfig } from '../lib/aiConfig'
 
 const DEFAULT_REPORTS = [
   {
@@ -79,9 +80,15 @@ export default function ReportsView() {
 
   const generate = async () => {
     setGenerating(true)
+    const cfg = getAiConfig()
     try {
       if (caseId) {
-        await reportsApi.generate(caseId, options)
+        await reportsApi.generate(caseId, {
+          ...options,
+          api_key: cfg.apiKey,
+          provider: cfg.provider,
+          model: cfg.model,
+        })
       }
       await load()
     } catch {

@@ -2,10 +2,12 @@ import { useState, useEffect, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import {
   Bell, Search, Activity, Wifi, WifiOff, Menu, Folder,
-  CheckCircle2, ShieldCheck, X, User, Plus
+  CheckCircle2, ShieldCheck, X, User, Plus, Sparkles, KeyRound
 } from 'lucide-react'
 import { healthApi } from '../lib/api'
 import { useCase } from '../lib/CaseContext'
+import ApiKeyModal from './ApiKeyModal'
+import { getAiConfig, AIConfig } from '../lib/aiConfig'
 
 export default function Navbar() {
   const location = useLocation()
@@ -16,6 +18,14 @@ export default function Navbar() {
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(3)
+  const [apiKeyModalOpen, setApiKeyModalOpen] = useState(false)
+  const [aiConfigState, setAiConfigState] = useState<AIConfig>(getAiConfig())
+
+  useEffect(() => {
+    const handleConfigChange = () => setAiConfigState(getAiConfig())
+    window.addEventListener('cybertrace_ai_config_changed', handleConfigChange)
+    return () => window.removeEventListener('cybertrace_ai_config_changed', handleConfigChange)
+  }, [])
 
   const notifRef = useRef<HTMLDivElement>(null)
   const profileRef = useRef<HTMLDivElement>(null)
@@ -135,6 +145,22 @@ export default function Navbar() {
           </span>
         </div>
 
+        {/* AI Engine & API Keys Trigger */}
+        <button
+          onClick={() => setApiKeyModalOpen(true)}
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all border-zinc-200 bg-zinc-50 hover:bg-zinc-100 text-zinc-800 shadow-xs hover:border-red-300"
+          title={`AI Engine: ${aiConfigState.provider.toUpperCase()} ${aiConfigState.apiKey ? '(Live Key Active)' : '(Built-in Offline)'} - Click to configure`}
+        >
+          <Sparkles className="w-3.5 h-3.5 text-red-600 shrink-0" />
+          <span className="hidden sm:inline font-bold">
+            {aiConfigState.provider === 'gemini' ? 'Gemini AI' : aiConfigState.provider === 'openai' ? 'OpenAI' : aiConfigState.provider === 'anthropic' ? 'Claude' : aiConfigState.provider === 'ollama' ? 'Ollama' : 'AI Engine'}
+          </span>
+          <span
+            className={`w-2 h-2 rounded-full shrink-0 ${aiConfigState.apiKey ? 'bg-emerald-500 shadow-xs shadow-emerald-500/50' : 'bg-amber-500'}`}
+            title={aiConfigState.apiKey ? 'Live API Key configured' : 'Using built-in forensic intelligence'}
+          />
+        </button>
+
         {/* Notifications Button & Dropdown */}
         <div className="relative" ref={notifRef}>
           <button
@@ -252,6 +278,13 @@ export default function Navbar() {
           )}
         </div>
       </div>
+
+      {/* Global API Key Configuration Dialog */}
+      <ApiKeyModal
+        isOpen={apiKeyModalOpen}
+        onClose={() => setApiKeyModalOpen(false)}
+        onSaved={() => setAiConfigState(getAiConfig())}
+      />
     </header>
   )
 }

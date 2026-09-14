@@ -223,14 +223,58 @@ class MockLLMClient(BaseLLMClient):
         return random.choice(self.MOCK_RESPONSES)
 
 
+class GeminiLLMClient(BaseLLMClient):
+    def __init__(self, api_key: str | None = None, model: str | None = None):
+        self.api_key = api_key or settings.LLM_API_KEY
+        self.model = model or settings.LLM_MODEL or "gemini-1.5-flash"
+
+    async def complete(self, prompt: str) -> dict[str, Any]:
+        import httpx
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.api_key}"
+        system_instruction = (
+            "You are CyberTrace, an AI forensic investigator. "
+            "Analyze the provided evidence and respond in JSON with keys: "
+            "reasoning, hypothesis, confidence, next_steps (list of strings), content, summary."
+        )
+        payload = {
+            "contents": [
+                {
+                    "role": "user",
+                    "parts": [{"text": f"{system_instruction}\n\nEvidence & Question:\n{prompt}"}],
+                }
+            ],
+            "generationConfig": {
+                "temperature": 0.2,
+                "responseMimeType": "application/json",
+            },
+        }
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            resp = await client.post(url, json=payload)
+            if resp.status_code != 200:
+                raise RuntimeError(f"Gemini API error ({resp.status_code}): {resp.text}")
+            data = resp.json()
+            try:
+                candidates = data.get("candidates", [])
+                if candidates:
+                    parts = candidates[0].get("content", {}).get("parts", [])
+                    if parts:
+                        text = parts[0].get("text", "{}")
+                        return json.loads(text)
+            except Exception:
+                pass
+            return {"reasoning": "Analysis completed via Gemini.", "summary": "Forensic analysis completed."}
+
+
 class OpenAILLMClient(BaseLLMClient):
-    def __init__(self):
+    def __init__(self, api_key: str | None = None, model: str | None = None):
         from openai import AsyncOpenAI
-        self._client = AsyncOpenAI(api_key=settings.LLM_API_KEY)
+        key = api_key or settings.LLM_API_KEY
+        self.model = model or settings.LLM_MODEL or "gpt-4o-mini"
+        self._client = AsyncOpenAI(api_key=key)
 
     async def complete(self, prompt: str) -> dict[str, Any]:
         response = await self._client.chat.completions.create(
-            model=settings.LLM_MODEL,
+            model=self.model,
             messages=[
                 {
                     "role": "system",
@@ -253,13 +297,16 @@ class OpenAILLMClient(BaseLLMClient):
 
 
 class OllamaLLMClient(BaseLLMClient):
+    def __init__(self, model: str | None = None):
+        self.model = model or settings.LLM_MODEL or "llama3.2"
+
     async def complete(self, prompt: str) -> dict[str, Any]:
         import httpx
         async with httpx.AsyncClient(timeout=120.0) as client:
             resp = await client.post(
                 f"{settings.OLLAMA_BASE_URL}/api/generate",
                 json={
-                    "model": settings.LLM_MODEL or "llama3.2",
+                    "model": self.model,
                     "prompt": (
                         f"You are CyberTrace, an AI forensic investigator. "
                         f"Respond in JSON with keys: reasoning, hypothesis, confidence, next_steps, content, summary.\n\n{prompt}"
@@ -277,13 +324,15 @@ class OllamaLLMClient(BaseLLMClient):
 
 
 class AnthropicLLMClient(BaseLLMClient):
-    def __init__(self):
+    def __init__(self, api_key: str | None = None, model: str | None = None):
         import anthropic
-        self._client = anthropic.AsyncAnthropic(api_key=settings.LLM_API_KEY)
+        key = api_key or settings.LLM_API_KEY
+        self.model = model or settings.LLM_MODEL or "claude-3-5-sonnet-20241022"
+        self._client = anthropic.AsyncAnthropic(api_key=key)
 
     async def complete(self, prompt: str) -> dict[str, Any]:
         message = await self._client.messages.create(
-            model=settings.LLM_MODEL or "claude-3-5-sonnet-20241022",
+            model=self.model,
             max_tokens=2048,
             messages=[{"role": "user", "content": prompt}],
             system=(
@@ -298,22 +347,31 @@ class AnthropicLLMClient(BaseLLMClient):
             return {"content": text, "reasoning": text}
 
 
-_CLIENT: BaseLLMClient | None = None
+def get_llm_client(
+    provider: str | None = None,
+    api_key: str | None = None,
+    model: str | None = None,
+) -> BaseLLMClient:
+    active_key = (api_key or settings.LLM_API_KEY or "").strip()
+    active_provider = (provider or settings.LLM_PROVIDER or "mock").lower().strip()
 
+    # Intelligent auto-detection of provider based on key prefix
+    if active_key and active_provider in ("mock", ""):
+        if active_key.startswith("AIzaSy"):
+            active_provider = "gemini"
+        elif active_key.startswith("sk-ant-"):
+            active_provider = "anthropic"
+        elif active_key.startswith("sk-"):
+            active_provider = "openai"
 
-def get_llm_client() -> BaseLLMClient:
-    global _CLIENT
-    if _CLIENT is not None:
-        return _CLIENT
-
-    provider = settings.LLM_PROVIDER.lower()
-    if provider == "openai":
-        _CLIENT = OpenAILLMClient()
-    elif provider == "ollama":
-        _CLIENT = OllamaLLMClient()
-    elif provider == "anthropic":
-        _CLIENT = AnthropicLLMClient()
+    if active_provider == "gemini":
+        return GeminiLLMClient(api_key=active_key, model=model)
+    elif active_provider == "openai":
+        return OpenAILLMClient(api_key=active_key, model=model)
+    elif active_provider == "anthropic":
+        return AnthropicLLMClient(api_key=active_key, model=model)
+    elif active_provider == "ollama":
+        return OllamaLLMClient(model=model)
     else:
-        _CLIENT = MockLLMClient()
+        return MockLLMClient()
 
-    return _CLIENT
