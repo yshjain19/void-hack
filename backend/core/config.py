@@ -18,9 +18,14 @@ class Settings(BaseSettings):
     NEO4J_PASSWORD: str = "forensiq_neo4j"
 
     # LLM
-    LLM_PROVIDER: str = "mock"  # mock | openai | ollama | gemini | anthropic
+    LLM_PROVIDER: str = "mock"  # mock | gemini | groq | openrouter | openai | anthropic | ollama
     LLM_API_KEY: str = ""
-    LLM_MODEL: str = "gpt-4o"
+    LLM_MODEL: str = "gemini-1.5-flash"
+    GEMINI_API_KEY: str = ""
+    GROQ_API_KEY: str = ""
+    OPENAI_API_KEY: str = ""
+    ANTHROPIC_API_KEY: str = ""
+    OPENROUTER_API_KEY: str = ""
     OLLAMA_BASE_URL: str = "http://localhost:11434"
 
     # App

@@ -109,7 +109,7 @@ const STORAGE_KEYS = {
 
 export function detectProviderFromKey(key: string): AIProvider | null {
   const trimmed = key.trim()
-  if (trimmed.startsWith('AIzaSy')) return 'gemini'
+  if (trimmed.startsWith('AIzaSy') || trimmed.startsWith('AQ.')) return 'gemini'
   if (trimmed.startsWith('gsk_')) return 'groq'
   if (trimmed.startsWith('sk-or-')) return 'openrouter'
   if (trimmed.startsWith('sk-ant-')) return 'anthropic'

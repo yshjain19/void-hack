@@ -435,8 +435,22 @@ def get_llm_client(
     api_key: str | None = None,
     model: str | None = None,
 ) -> BaseLLMClient:
-    active_key = (api_key or settings.LLM_API_KEY or "").strip()
     active_provider = (provider or settings.LLM_PROVIDER or "mock").lower().strip()
+    active_key = (
+        api_key
+        or (settings.GEMINI_API_KEY if active_provider == "gemini" else None)
+        or (settings.GROQ_API_KEY if active_provider == "groq" else None)
+        or (settings.OPENROUTER_API_KEY if active_provider == "openrouter" else None)
+        or (settings.OPENAI_API_KEY if active_provider == "openai" else None)
+        or (settings.ANTHROPIC_API_KEY if active_provider == "anthropic" else None)
+        or settings.LLM_API_KEY
+        or settings.GEMINI_API_KEY
+        or settings.GROQ_API_KEY
+        or settings.OPENAI_API_KEY
+        or settings.ANTHROPIC_API_KEY
+        or settings.OPENROUTER_API_KEY
+        or ""
+    ).strip()
 
     # Intelligent auto-detection of provider based on key prefix
     if active_key and active_provider in ("mock", ""):
