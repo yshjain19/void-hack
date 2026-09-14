@@ -347,6 +347,89 @@ class AnthropicLLMClient(BaseLLMClient):
             return {"content": text, "reasoning": text}
 
 
+class GroqLLMClient(BaseLLMClient):
+    """Groq Cloud client — 100% free tier with ultra-fast inference on Llama 3.3 70B & 8B."""
+    def __init__(self, api_key: str | None = None, model: str | None = None):
+        self.api_key = api_key or settings.LLM_API_KEY
+        self.model = model or "llama-3.3-70b-versatile"
+
+    async def complete(self, prompt: str) -> dict[str, Any]:
+        import httpx
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+        payload = {
+            "model": self.model,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": (
+                        "You are CyberTrace, an AI forensic investigator. "
+                        "Analyze the provided evidence and respond in JSON with keys: "
+                        "reasoning, hypothesis, confidence, next_steps (list of strings), content, summary."
+                    ),
+                },
+                {"role": "user", "content": prompt},
+            ],
+            "response_format": {"type": "json_object"},
+            "temperature": 0.2,
+        }
+        async with httpx.AsyncClient(timeout=45.0) as client:
+            resp = await client.post(url, headers=headers, json=payload)
+            if resp.status_code != 200:
+                raise RuntimeError(f"Groq API error ({resp.status_code}): {resp.text}")
+            data = resp.json()
+            text = data["choices"][0]["message"]["content"] or "{}"
+            try:
+                return json.loads(text)
+            except json.JSONDecodeError:
+                return {"content": text, "reasoning": text}
+
+
+class OpenRouterLLMClient(BaseLLMClient):
+    """OpenRouter client — access to free models."""
+    def __init__(self, api_key: str | None = None, model: str | None = None):
+        self.api_key = api_key or settings.LLM_API_KEY
+        self.model = model or "meta-llama/llama-3.2-3b-instruct:free"
+
+    async def complete(self, prompt: str) -> dict[str, Any]:
+        import httpx
+        url = "https://openrouter.ai/api/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://cybertrace.local",
+            "X-Title": "CyberTrace Forensics",
+        }
+        payload = {
+            "model": self.model,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": (
+                        "You are CyberTrace, an AI forensic investigator. "
+                        "Respond in JSON with keys: reasoning, hypothesis, confidence, next_steps, content, summary."
+                    ),
+                },
+                {"role": "user", "content": prompt},
+            ],
+            "response_format": {"type": "json_object"},
+            "temperature": 0.2,
+        }
+        async with httpx.AsyncClient(timeout=45.0) as client:
+            resp = await client.post(url, headers=headers, json=payload)
+            if resp.status_code != 200:
+                raise RuntimeError(f"OpenRouter API error ({resp.status_code}): {resp.text}")
+            data = resp.json()
+            text = data["choices"][0]["message"]["content"] or "{}"
+            try:
+                return json.loads(text)
+            except json.JSONDecodeError:
+                return {"content": text, "reasoning": text}
+
+
 def get_llm_client(
     provider: str | None = None,
     api_key: str | None = None,
@@ -359,6 +442,10 @@ def get_llm_client(
     if active_key and active_provider in ("mock", ""):
         if active_key.startswith("AIzaSy"):
             active_provider = "gemini"
+        elif active_key.startswith("gsk_"):
+            active_provider = "groq"
+        elif active_key.startswith("sk-or-"):
+            active_provider = "openrouter"
         elif active_key.startswith("sk-ant-"):
             active_provider = "anthropic"
         elif active_key.startswith("sk-"):
@@ -366,6 +453,10 @@ def get_llm_client(
 
     if active_provider == "gemini":
         return GeminiLLMClient(api_key=active_key, model=model)
+    elif active_provider == "groq":
+        return GroqLLMClient(api_key=active_key, model=model)
+    elif active_provider == "openrouter":
+        return OpenRouterLLMClient(api_key=active_key, model=model)
     elif active_provider == "openai":
         return OpenAILLMClient(api_key=active_key, model=model)
     elif active_provider == "anthropic":
@@ -374,4 +465,5 @@ def get_llm_client(
         return OllamaLLMClient(model=model)
     else:
         return MockLLMClient()
+
 

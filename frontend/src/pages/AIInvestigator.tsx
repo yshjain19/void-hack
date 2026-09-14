@@ -502,6 +502,26 @@ export default function AIInvestigator() {
         </div>
       </div>
 
+      {/* Free API Key Banner */}
+      {!aiConfig.apiKey && (
+        <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border border-emerald-200/90 px-3 py-2 rounded-xl flex items-center justify-between gap-3 text-xs shrink-0">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 text-xs">
+              🎁
+            </span>
+            <p className="text-zinc-700 truncate font-medium">
+              <strong className="text-zinc-950 font-bold">Use Free API Keys:</strong> Get 100% free live AI from <strong className="text-emerald-800">Google Gemini</strong> or <strong className="text-emerald-800">Groq Cloud</strong> without entering any credit card.
+            </p>
+          </div>
+          <button
+            onClick={() => setApiKeyModalOpen(true)}
+            className="shrink-0 px-3 py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg font-bold text-[11px] shadow-2xs transition-colors flex items-center gap-1 cursor-pointer"
+          >
+            <span>Get Free Key</span>
+          </button>
+        </div>
+      )}
+
       {/* Suggested Inquiries Toolbar */}
       <div className="bg-zinc-50/80 p-2.5 rounded-xl border border-zinc-200/80 overflow-x-auto shrink-0 flex items-center gap-2 scrollbar-thin">
         <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider shrink-0 flex items-center gap-1 mr-1">
