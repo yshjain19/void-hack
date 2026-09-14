@@ -124,10 +124,17 @@ export function detectProviderFromKey(key: string): AIProvider | null {
 }
 
 export function getAiConfig(): AIConfig {
-  const provider = (localStorage.getItem(STORAGE_KEYS.PROVIDER) as AIProvider) || 'groq'
+  let provider = (localStorage.getItem(STORAGE_KEYS.PROVIDER) as AIProvider) || 'groq'
+  // Auto-upgrade legacy or default 'mock' to 'groq' so live AI is active out of the box with the free key
+  if ((!provider || provider === 'mock') && DEFAULT_FREE_KEYS['groq']) {
+    provider = 'groq'
+  }
   const savedKey = localStorage.getItem(STORAGE_KEYS.API_KEY)
-  const apiKey = savedKey !== null && savedKey !== '' ? savedKey : (DEFAULT_FREE_KEYS[provider] || '')
-  const model = localStorage.getItem(STORAGE_KEYS.MODEL) || PROVIDER_DEFAULTS[provider]?.defaultModel || 'llama-3.3-70b-versatile'
+  const apiKey = savedKey && savedKey.trim() !== '' ? savedKey.trim() : (DEFAULT_FREE_KEYS[provider] || DEFAULT_FREE_KEYS['groq'] || '')
+  let model = localStorage.getItem(STORAGE_KEYS.MODEL)
+  if (!model || model === 'llama-3.3-70b-versatile' || model === 'cybertrace-forensics-v1' || (provider === 'groq' && !PROVIDER_DEFAULTS.groq.models.includes(model))) {
+    model = PROVIDER_DEFAULTS[provider]?.defaultModel || 'openai/gpt-oss-120b'
+  }
   return { provider, apiKey, model }
 }
 
@@ -159,14 +166,22 @@ export async function callDirectLLM(prompt: string, config: AIConfig): Promise<A
     throw new Error(`Free API key is required for ${PROVIDER_DEFAULTS[provider]?.name || provider}. You can get one free at ${PROVIDER_DEFAULTS[provider]?.helpUrl}`)
   }
 
-  const systemInstruction = `You are CyberTrace, an expert AI digital forensics and financial crimes investigator.
-Analyze the following inquiry or case evidence.
+  const systemInstruction = `You are CyberTrace, an expert AI digital forensics and financial crime investigation platform.
+The application name is "CyberTrace AI" (or "CyberTrace").
+You help investigators analyze financial fraud, shell company layering, transaction anomalies, emails, and corporate registry records.
+
+CRITICAL INSTRUCTION FOR IDENTITY & GENERAL INQUIRIES:
+If the user asks about the application's name or identity in any language, including Hindi or Hinglish (e.g. "app ka name", "kya naam hai", "aap kaun ho", "who are you", "what is this app", "hello", "hi"):
+- Directly, clearly, and accurately answer that the application name is CyberTrace AI.
+- Explain that it is an autonomous forensic intelligence platform for digital investigations.
+- Respond in a professional, courteous manner matching the user's language (English or Hindi/Hinglish).
+
 Always respond in valid JSON format with EXACTLY these keys:
 {
-  "summary": "Brief executive summary of findings (1-2 sentences)",
-  "hypothesis": "Investigative hypothesis or conclusion",
-  "confidence": "High, Medium, or Low (with probability e.g. High (0.92))",
-  "reasoning": "Detailed technical forensic reasoning explaining the evidence, entities, patterns, and mechanisms",
+  "summary": "Brief executive summary or direct answer (1-2 sentences)",
+  "hypothesis": "Investigative hypothesis or direct conclusion",
+  "confidence": "High, Medium, or Low (with probability e.g. High (0.99))",
+  "reasoning": "Detailed technical forensic reasoning or comprehensive explanation answering the user's question",
   "next_steps": ["Actionable step 1", "Actionable step 2", "Actionable step 3", "Actionable step 4"]
 }`
 

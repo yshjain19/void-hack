@@ -27,6 +27,7 @@ class InvestigateRequest(BaseModel):
 class ReasoningResponse(BaseModel):
     case_id: str
     question: Optional[str]
+    summary: Optional[str] = None
     reasoning: str
     hypothesis: Optional[str] = None
     confidence: Optional[str] = None
@@ -67,23 +68,37 @@ async def investigate(
         model=payload.model,
     )
 
-    try:
-        case = await _get_case_or_404(db, case_id)
-        prompt = await build_investigation_prompt(db, case_id, case, payload.question)
-    except Exception:
-        prompt = f"CYBERTRACE FORENSIC INQUIRY: {payload.question or 'General forensic overview and entity attribution'}"
+    q_lower = (payload.question or "").lower().strip()
+    is_identity = any(kw in q_lower for kw in [
+        "app ka name", "app name", "kya naam", "naam", "name", "who are you",
+        "what is this app", "cybertrace", "kya hai", "kaun ho", "tum kaun ho"
+    ])
+
+    if is_identity:
+        prompt = (
+            f"CYBERTRACE IDENTITY INQUIRY: The user asked '{payload.question}'. "
+            "Explain directly and accurately that the application name is CyberTrace AI, "
+            "an advanced AI digital forensics and financial crime investigation platform."
+        )
+    else:
+        try:
+            case = await _get_case_or_404(db, case_id)
+            prompt = await build_investigation_prompt(db, case_id, case, payload.question)
+        except Exception:
+            prompt = f"CYBERTRACE FORENSIC INQUIRY: {payload.question or 'General forensic overview and entity attribution'}"
 
     try:
         response = await llm.complete(prompt)
     except Exception as exc:
         # Graceful fallback to mock with warning message if remote API throws an error
         fallback = MockLLMClient()
-        response = await fallback.complete(prompt)
+        response = await fallback.complete(payload.question or prompt)
         response["reasoning"] = f"[{payload.provider or 'AI'} API Notice: {str(exc)[:140]} — Falling back to CyberTrace Knowledge Engine]\n\n" + response.get("reasoning", "")
 
     return ReasoningResponse(
         case_id=case_id,
         question=payload.question,
+        summary=response.get("summary", "Analysis completed by CyberTrace AI."),
         reasoning=response.get("reasoning", response.get("content", "")),
         hypothesis=response.get("hypothesis"),
         confidence=response.get("confidence"),

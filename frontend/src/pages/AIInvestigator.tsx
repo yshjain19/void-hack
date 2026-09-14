@@ -199,19 +199,42 @@ export const FORENSIC_KNOWLEDGE_BASE = [
       'Finalize certified forensic examination dossier for judicial submission',
     ],
   },
+  {
+    topic: 'identity',
+    keywords: [
+      'app ka name', 'app name', 'app kaa naam', 'naam', 'kya naam', 'name', 'who are you', 'what is this app',
+      'cybertrace', 'about', 'help', 'hi', 'hello', 'hey', 'kaun ho', 'kya hai', 'aapka naam', 'tum kaun ho',
+      'application', 'what is this', 'introduce', 'creator', 'version'
+    ],
+    summary: 'The application name is CyberTrace AI — an advanced autonomous digital forensics and financial crime intelligence platform.',
+    hypothesis: 'CyberTrace AI operates as an intelligent forensic workstation to de-anonymize shell entities, audit transaction graphs, and reconstruct financial crimes.',
+    confidence: 'High (0.99)',
+    reasoning: 'Application Name: CyberTrace AI (Enterprise Forensics Suite v2.4).\n\nCyberTrace AI is built for fraud investigators, anti-money laundering (AML) analysts, and forensic accountants. Key capabilities include:\n• Unmasking beneficial owners (UBO) behind offshore shell corporations\n• Tracing circular escrow round-tripping and multi-hop peeling chains\n• Correlating spoofed email headers (.eml) and bulletproof infrastructure\n• Maintaining ISO/IEC 27037 certified cryptographic chain-of-custody ledgers\n\nYou can ask me specific questions about active suspects (e.g. Apex Global, Vance Trust), corporate shells, bank wires, or legal subpoena strategies.',
+    next_steps: [
+      'Ask: "Analyze shell company layering for Apex Global Holdings"',
+      'Ask: "Trace circular $4.2M Barclays escrow loop"',
+      'Ask: "Examine spoofed email headers in intercept.eml"',
+      'Ask: "Identify strawman director Elena Rostova connections"',
+    ],
+  },
 ]
 
 // Find matching knowledge item by input text
 function matchForensicKnowledge(query: string) {
-  const q = query.toLowerCase()
+  const q = query.toLowerCase().trim()
   for (const item of FORENSIC_KNOWLEDGE_BASE) {
     if (item.keywords.some(kw => q.includes(kw))) {
       return item
     }
   }
-  // Fallback to random or general item
-  const otherItems = FORENSIC_KNOWLEDGE_BASE.filter(i => i.topic !== 'general')
-  return otherItems[Math.floor(Math.random() * otherItems.length)]
+  // Check if query looks like a greeting or identity question
+  if (q.length < 35 && (q.includes('name') || q.includes('naam') || q.includes('hi') || q.includes('who') || q.includes('what') || q.includes('kya'))) {
+    const idItem = FORENSIC_KNOWLEDGE_BASE.find(i => i.topic === 'identity')
+    if (idItem) return idItem
+  }
+  // Default to general case overview synthesis rather than a random specific topic
+  const generalItem = FORENSIC_KNOWLEDGE_BASE.find(i => i.topic === 'general')
+  return generalItem || FORENSIC_KNOWLEDGE_BASE[0]
 }
 
 export default function AIInvestigator() {
@@ -276,70 +299,54 @@ export default function AIInvestigator() {
     const currentConfig = getAiConfig()
     const matched = matchForensicKnowledge(trimmed)
 
-    // 1. Live API Key Call (Gemini, OpenAI, Anthropic)
+    // 1. Live API Key Call (Groq, Gemini, OpenRouter)
     if (currentConfig.provider !== 'mock' && currentConfig.apiKey) {
-      // First attempt via Backend API
+      // Primary attempt: Fast Direct LLM from browser
       try {
-        const targetCaseId = caseId || 'case-01'
-        const res = await aiApi.investigate(targetCaseId, {
-          question: trimmed,
-          api_key: currentConfig.apiKey,
-          provider: currentConfig.provider,
-          model: currentConfig.model,
-        })
-        const apiData = res.data
-        if (apiData && (apiData.reasoning || apiData.hypothesis)) {
-          const aiMsg: ChatMessage = {
-            id: 'ai-' + Date.now(),
-            sender: 'ai',
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            data: {
-              summary: apiData.summary || matched.summary,
-              hypothesis: apiData.hypothesis || matched.hypothesis,
-              confidence: apiData.confidence || matched.confidence,
-              reasoning: apiData.reasoning || matched.reasoning,
-              next_steps: apiData.next_steps && apiData.next_steps.length > 0 ? apiData.next_steps : matched.next_steps,
-              providerLabel: `Live ${PROVIDER_DEFAULTS[currentConfig.provider]?.name || currentConfig.provider} (${currentConfig.model})`,
-            },
-          }
-          setMessages(prev => [...prev, aiMsg])
-          setLoading(false)
-          return
+        const directData = await callDirectLLM(trimmed, currentConfig)
+        const aiMsg: ChatMessage = {
+          id: 'ai-' + Date.now(),
+          sender: 'ai',
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          data: {
+            ...directData,
+            providerLabel: `Live ${PROVIDER_DEFAULTS[currentConfig.provider]?.name || currentConfig.provider} (${currentConfig.model})`,
+          },
         }
-      } catch (backendErr) {
-        // Backend not reachable, try direct browser LLM call!
+        setMessages(prev => [...prev, aiMsg])
+        setLoading(false)
+        return
+      } catch (directErr) {
+        // Fallback attempt: Backend API proxy
         try {
-          const directData = await callDirectLLM(trimmed, currentConfig)
-          const aiMsg: ChatMessage = {
-            id: 'ai-' + Date.now(),
-            sender: 'ai',
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            data: {
-              ...directData,
-              providerLabel: `Live Direct ${directData.providerLabel || currentConfig.provider}`,
-            },
+          const targetCaseId = caseId || 'case-01'
+          const res = await aiApi.investigate(targetCaseId, {
+            question: trimmed,
+            api_key: currentConfig.apiKey,
+            provider: currentConfig.provider,
+            model: currentConfig.model,
+          })
+          const apiData = res.data
+          if (apiData && (apiData.reasoning || apiData.hypothesis)) {
+            const aiMsg: ChatMessage = {
+              id: 'ai-' + Date.now(),
+              sender: 'ai',
+              timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              data: {
+                summary: apiData.summary || matched.summary,
+                hypothesis: apiData.hypothesis || matched.hypothesis,
+                confidence: apiData.confidence || matched.confidence,
+                reasoning: apiData.reasoning || matched.reasoning,
+                next_steps: apiData.next_steps && apiData.next_steps.length > 0 ? apiData.next_steps : matched.next_steps,
+                providerLabel: `Live ${PROVIDER_DEFAULTS[currentConfig.provider]?.name || currentConfig.provider} (${currentConfig.model})`,
+              },
+            }
+            setMessages(prev => [...prev, aiMsg])
+            setLoading(false)
+            return
           }
-          setMessages(prev => [...prev, aiMsg])
-          setLoading(false)
-          return
-        } catch (directErr: any) {
-          // Both failed, notify user and use matched knowledge
-          const aiMsg: ChatMessage = {
-            id: 'ai-' + Date.now(),
-            sender: 'ai',
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            data: {
-              summary: `[Notice: ${directErr?.message || 'API connection failed'} — Falling back to CyberTrace Knowledge]: ${matched.summary}`,
-              hypothesis: matched.hypothesis,
-              confidence: matched.confidence,
-              reasoning: matched.reasoning,
-              next_steps: matched.next_steps,
-              providerLabel: 'CyberTrace Knowledge Fallback',
-            },
-          }
-          setMessages(prev => [...prev, aiMsg])
-          setLoading(false)
-          return
+        } catch {
+          // Fall through to matched knowledge
         }
       }
     }
