@@ -51,7 +51,7 @@ export default function ToolRedirect({ tool, title }: ToolRedirectProps) {
         >
           <FolderOpen className="w-4 h-4" /> Select Investigation
         </button>
-        <Link to="/" className="btn-ghost flex items-center gap-2 text-xs py-2 px-4">
+        <Link to="/dashboard" className="btn-ghost flex items-center gap-2 text-xs py-2 px-4">
           <ArrowLeft className="w-4 h-4" /> Return to Dashboard
         </Link>
       </div>

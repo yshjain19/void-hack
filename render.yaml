@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: forensiq-frontend
+    name: cybertrace-frontend
     env: static
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: frontend/dist
@@ -10,7 +10,7 @@ services:
         destination: /index.html
 
   - type: web
-    name: forensiq-backend
+    name: cybertrace-backend
     env: docker
     dockerfilePath: backend/Dockerfile
     dockerContext: backend

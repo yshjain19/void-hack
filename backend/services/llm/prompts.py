@@ -56,7 +56,7 @@ async def build_investigation_prompt(
     question_block = f"\nINVESTIGATOR QUESTION:\n{question}\n" if question else ""
 
     return f"""
-FORENSIQ INVESTIGATION BRIEF
+CYBERTRACE INVESTIGATION BRIEF
 =============================
 Case ID: {case_id}
 Title: {case.title}

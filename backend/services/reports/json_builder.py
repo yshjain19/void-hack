@@ -44,7 +44,7 @@ async def build_json_report(
     report: dict[str, Any] = {
         "schema_version": "1.0",
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "generator": "ForensIQ v1.0",
+        "generator": "CyberTrace v1.0",
         "case": {
             "id": case.id,
             "title": case.title,

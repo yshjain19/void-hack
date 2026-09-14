@@ -1,5 +1,5 @@
 """
-ForensIQ — FastAPI Application Entrypoint
+CyberTrace — FastAPI Application Entrypoint
 """
 from contextlib import asynccontextmanager
 
@@ -24,7 +24,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="ForensIQ API",
+    title="CyberTrace API",
     description="AI-powered forensic fraud investigation platform",
     version="1.0.0",
     lifespan=lifespan,
@@ -53,7 +53,7 @@ app.include_router(reports.router, prefix="/api/reports", tags=["Reports"])
 @app.get("/", tags=["Root"])
 async def root():
     return {
-        "service": "ForensIQ Backend API",
+        "service": "CyberTrace Backend API",
         "version": "1.0.0",
         "docs": "/docs",
         "health": "/api/health",
@@ -65,6 +65,6 @@ async def health_check():
     return {
         "status": "healthy",
         "version": "1.0.0",
-        "service": "ForensIQ Backend",
+        "service": "CyberTrace Backend",
         "llm_provider": settings.LLM_PROVIDER,
     }

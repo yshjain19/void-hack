@@ -1,4 +1,4 @@
-# ForensIQ — AI-Powered Forensic Investigation Platform
+# CyberTrace — AI-Powered Forensic Investigation Platform
 
 > A full-stack, production-grade forensic fraud investigation platform with graph-based relationship mapping, anomaly detection, immutable evidence chain-of-custody, LLM investigation reasoning, and professional PDF report generation.
 

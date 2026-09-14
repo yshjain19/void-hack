@@ -21,6 +21,7 @@ const indexHtmlContent = fs.readFileSync(indexHtmlPath, 'utf8')
 
 // Pre-create directories and index.html for known routes to ensure direct HTTP 200 on static hosts
 const staticRoutes = [
+  'dashboard',
   'cases',
   'cases/new',
   'graph',

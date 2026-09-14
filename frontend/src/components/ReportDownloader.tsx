@@ -30,12 +30,12 @@ export default function ReportDownloader({ reports, onDelete }: ReportDownloader
       const ext = report.format
       downloadBlob(
         res.data,
-        `forensiq_report_${report.case_id.slice(0, 8)}.${ext}`
+        `cybertrace_report_${report.case_id.slice(0, 8)}.${ext}`
       )
     } catch {
       // Fallback client-side report download so button always works
       const reportPayload = JSON.stringify({
-        forensic_platform: "ForensIQ v1.0.0",
+        forensic_platform: "CyberTrace v1.0.0",
         report_title: report.title,
         case_id: report.case_id,
         format: report.format,
@@ -47,7 +47,7 @@ export default function ReportDownloader({ reports, onDelete }: ReportDownloader
       const blob = new Blob([reportPayload], {
         type: report.format === 'json' ? 'application/json' : 'text/plain'
       })
-      downloadBlob(blob, `forensiq_report_${report.case_id.slice(0, 8)}.${report.format === 'json' ? 'json' : 'txt'}`)
+      downloadBlob(blob, `cybertrace_report_${report.case_id.slice(0, 8)}.${report.format === 'json' ? 'json' : 'txt'}`)
     } finally {
       setDownloading(null)
     }

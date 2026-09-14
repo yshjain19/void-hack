@@ -1,4 +1,4 @@
-import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, FolderOpen, Upload, Network,
   BarChart3, Brain, FileText, Shield, ChevronRight,
@@ -8,9 +8,9 @@ import { cn } from '../lib/utils'
 import { useCase, ToolItem } from '../lib/CaseContext'
 
 const NAV_ITEMS = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard', exact: true },
-  { to: '/cases', icon: FolderOpen, label: 'Cases' },
-  { to: '/evidence/upload', icon: Upload, label: 'Upload Evidence' },
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', exact: true },
+  { to: '/cases', icon: FolderOpen, label: 'Cases', exact: false },
+  { to: '/evidence/upload', icon: Upload, label: 'Upload Evidence', exact: false },
 ]
 
 const TOOL_ITEMS: ToolItem[] = [
@@ -58,15 +58,15 @@ export default function Sidebar() {
     >
       {/* Logo */}
       <div className="p-5 border-b border-zinc-200 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md shadow-red-600/30">
+        <Link to="/" className="flex items-center gap-3 group" title="Return to CyberTrace Home">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shadow-md shadow-red-600/30 group-hover:scale-105 transition-transform">
             <Shield className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="font-extrabold text-zinc-950 text-lg leading-none tracking-tight">Forens<span className="text-red-600">IQ</span></h1>
+            <h1 className="font-extrabold text-zinc-950 text-lg leading-none tracking-tight">Cyber<span className="text-red-600">Trace</span></h1>
             <p className="text-zinc-500 text-[11px] font-medium mt-0.5 uppercase tracking-wider">Forensic Platform</p>
           </div>
-        </div>
+        </Link>
 
         {/* Mobile close button */}
         <button
@@ -183,7 +183,7 @@ export default function Sidebar() {
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-slow" />
             <span className="text-xs font-semibold text-zinc-700">Forensics Engine Online</span>
           </div>
-          <p className="text-[11px] text-zinc-400 mt-1 font-mono">ForensIQ Core v1.0.0</p>
+          <p className="text-[11px] text-zinc-400 mt-1 font-mono">CyberTrace Core v1.0.0</p>
         </div>
       </div>
     </aside>

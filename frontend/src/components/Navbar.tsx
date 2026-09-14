@@ -23,6 +23,7 @@ export default function Navbar() {
   // Page title map
   const titleMap: Record<string, string> = {
     '/': 'Dashboard',
+    '/dashboard': 'Dashboard',
     '/cases': 'Investigation Cases',
     '/cases/new': 'New Case',
     '/evidence/upload': 'Upload Evidence',
@@ -169,7 +170,7 @@ export default function Navbar() {
               <div className="space-y-2.5 max-h-60 overflow-y-auto text-xs">
                 <div className="p-2.5 rounded-lg bg-zinc-50 border border-zinc-200">
                   <div className="flex items-center gap-1.5 text-emerald-700 font-bold mb-0.5">
-                    <ShieldCheck className="w-3.5 h-3.5" /> ForensIQ Integrity Shield
+                    <ShieldCheck className="w-3.5 h-3.5" /> CyberTrace Integrity Shield
                   </div>
                   <p className="text-zinc-600">All evidence files protected with immutable SHA-256 custody chain hashing.</p>
                 </div>

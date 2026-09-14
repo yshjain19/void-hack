@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Shield background -->
+  <path d="M32 4L8 14v16c0 13.3 10.1 25.7 24 29 13.9-3.3 24-15.7 24-29V14L32 4z" fill="#dc2626" opacity="0.95"/>
+  <path d="M32 4L8 14v16c0 13.3 10.1 25.7 24 29 13.9-3.3 24-15.7 24-29V14L32 4z" fill="url(#shieldGrad)"/>
+  
+  <!-- Shield inner border -->
+  <path d="M32 7L10 16.2v13.8c0 12.1 9.2 23.4 22 26.5 12.8-3.1 22-14.4 22-26.5V16.2L32 7z" stroke="#fca5a5" stroke-width="1.2" fill="none" opacity="0.6"/>
+  
+  <!-- Cyber Trace nodes and search focus -->
+  <circle cx="28" cy="28" r="8" stroke="white" stroke-width="2.5" fill="none" opacity="0.95"/>
+  <line x1="34" y1="34" x2="43" y2="43" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.95"/>
+  <circle cx="28" cy="28" r="3" fill="white" opacity="0.8"/>
+  <circle cx="44" cy="20" r="2.5" fill="#fecaca" opacity="0.9"/>
+  <line x1="34" y1="24" x2="41.5" y2="21" stroke="#fee2e2" stroke-width="1.5" stroke-dasharray="2 2" opacity="0.8"/>
+  
+  <defs>
+    <linearGradient id="shieldGrad" x1="8" y1="4" x2="56" y2="62" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#dc2626"/>
+      <stop offset="100%" stop-color="#991b1b"/>
+    </linearGradient>
+  </defs>
+</svg>

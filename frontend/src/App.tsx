@@ -12,6 +12,7 @@ import AnalyticsView from './pages/AnalyticsView'
 import AIInvestigator from './pages/AIInvestigator'
 import ReportsView from './pages/ReportsView'
 import EvidenceUpload from './pages/EvidenceUpload'
+import LandingPage from './pages/LandingPage'
 import { CaseProvider, useCase } from './lib/CaseContext'
 
 function AppLayout() {
@@ -36,7 +37,7 @@ function AppLayout() {
         <Navbar />
         <main className="flex-1 overflow-y-auto p-3 sm:p-5 md:p-6 animate-fade-in bg-zinc-50">
           <Routes>
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/cases" element={<CaseList />} />
             <Route path="/cases/new" element={<NewCase />} />
             <Route path="/cases/:id" element={<CaseDetail />} />
@@ -52,7 +53,7 @@ function AppLayout() {
             <Route path="/ai" element={<ToolRedirect tool="ai" title="AI Investigator" />} />
             <Route path="/reports" element={<ToolRedirect tool="reports" title="Reports" />} />
 
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </main>
       </div>
@@ -67,8 +68,15 @@ export default function App() {
   return (
     <BrowserRouter>
       <CaseProvider>
-        <AppLayout />
+        <Routes>
+          {/* Public Root / Landing Page */}
+          <Route path="/" element={<LandingPage />} />
+
+          {/* Internal Application Layout */}
+          <Route path="/*" element={<AppLayout />} />
+        </Routes>
       </CaseProvider>
     </BrowserRouter>
   )
 }
+

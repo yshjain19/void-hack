@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ForensIQ — Redirecting...</title>
+    <title>CyberTrace — Redirecting...</title>
     <script>
       (function() {
         var path = window.location.pathname;
@@ -11,7 +11,7 @@
         var hash = window.location.hash;
         var fullUrl = path + search + hash;
         try {
-          sessionStorage.setItem('forensiq_redirect', fullUrl);
+          sessionStorage.setItem('cybertrace_redirect', fullUrl);
         } catch (e) {}
         window.location.replace('/?_p=' + encodeURIComponent(fullUrl));
       })();
@@ -31,8 +31,8 @@
       .spinner {
         width: 32px;
         height: 32px;
-        border: 3px solid rgba(99, 102, 241, 0.2);
-        border-top-color: #6366f1;
+        border: 3px solid rgba(220, 38, 38, 0.2);
+        border-top-color: #dc2626;
         border-radius: 50%;
         animation: spin 0.8s linear infinite;
         margin: 0 auto 16px;
@@ -45,7 +45,7 @@
   <body>
     <div style="text-align: center;">
       <div class="spinner"></div>
-      <p style="font-size: 14px; letter-spacing: 0.05em;">Loading ForensIQ...</p>
+      <p style="font-size: 14px; letter-spacing: 0.05em;">Loading CyberTrace...</p>
     </div>
   </body>
 </html>

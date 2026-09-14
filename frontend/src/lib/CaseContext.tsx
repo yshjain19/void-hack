@@ -24,16 +24,16 @@ interface CaseContextType {
 
 const CaseContext = createContext<CaseContextType | undefined>(undefined)
 
-const STORAGE_KEY_ID = 'forensiq_active_case_id'
-const STORAGE_KEY_TITLE = 'forensiq_active_case_title'
+const STORAGE_KEY_ID = 'cybertrace_active_case_id'
+const STORAGE_KEY_TITLE = 'cybertrace_active_case_title'
 
 export function CaseProvider({ children }: { children: React.ReactNode }) {
   const location = useLocation()
   const [activeCaseId, setActiveCaseIdState] = useState<string | null>(() => {
-    return localStorage.getItem(STORAGE_KEY_ID)
+    return localStorage.getItem(STORAGE_KEY_ID) || localStorage.getItem('forensiq_active_case_id')
   })
   const [activeCaseTitle, setActiveCaseTitleState] = useState<string | null>(() => {
-    return localStorage.getItem(STORAGE_KEY_TITLE)
+    return localStorage.getItem(STORAGE_KEY_TITLE) || localStorage.getItem('forensiq_active_case_title')
   })
   const [isCaseSelectorOpen, setIsCaseSelectorOpen] = useState(false)
   const [targetTool, setTargetTool] = useState<ToolItem | null>(null)

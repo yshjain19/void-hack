@@ -1,5 +1,5 @@
 """
-ForensIQ Automated Test Suite — Production Validation
+CyberTrace Automated Test Suite — Production Validation
 Tests core algorithms, security hashing, ML services, parsers, and API endpoints.
 """
 import unittest
@@ -82,7 +82,7 @@ class TestEmailParser(unittest.TestCase):
     def test_parse_email(self):
         raw_email = (
             b"From: whistleblower@secure.org\n"
-            b"To: investigator@forensiq.ai\n"
+            b"To: investigator@cybertrace.ai\n"
             b"Subject: Shell accounts inquiry\n"
             b"Date: Sun, 13 Sep 2026 09:00:00 +0000\n\n"
             b"Please look into transfers to offshore account 9876543210 and IP 10.0.0.5."

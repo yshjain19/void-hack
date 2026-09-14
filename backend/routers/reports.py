@@ -29,7 +29,7 @@ async def generate_reports(
 ):
     """Generate both PDF and JSON reports for a case."""
     case = await _get_case_or_404(db, case_id)
-    title = payload.title or f"ForensIQ Report — {case.title}"
+    title = payload.title or f"CyberTrace Report — {case.title}"
 
     reports_dir = Path(settings.REPORTS_DIR) / case_id
     reports_dir.mkdir(parents=True, exist_ok=True)
