@@ -48,7 +48,7 @@ function AppLayout() {
             <Route path="/evidence/upload" element={<EvidenceUpload />} />
 
             {/* Direct Tool Routes */}
-            <Route path="/graph" element={<ToolRedirect tool="graph" title="Entity Graph" />} />
+            <Route path="/graph" element={<GraphView />} />
             <Route path="/analytics" element={<ToolRedirect tool="analytics" title="Analytics" />} />
             <Route path="/ai" element={<ToolRedirect tool="ai" title="AI Investigator" />} />
             <Route path="/reports" element={<ToolRedirect tool="reports" title="Reports" />} />
