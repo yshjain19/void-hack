@@ -226,7 +226,7 @@ class MockLLMClient(BaseLLMClient):
 class GeminiLLMClient(BaseLLMClient):
     def __init__(self, api_key: str | None = None, model: str | None = None):
         self.api_key = api_key or settings.LLM_API_KEY
-        self.model = model or settings.LLM_MODEL or "gemini-1.5-flash"
+        self.model = model or settings.LLM_MODEL or "gemini-flash-latest"
 
     async def complete(self, prompt: str) -> dict[str, Any]:
         import httpx
@@ -351,7 +351,7 @@ class GroqLLMClient(BaseLLMClient):
     """Groq Cloud client — 100% free tier with ultra-fast inference on Llama 3.3 70B & 8B."""
     def __init__(self, api_key: str | None = None, model: str | None = None):
         self.api_key = api_key or settings.LLM_API_KEY
-        self.model = model or "llama-3.3-70b-versatile"
+        self.model = model or "openai/gpt-oss-120b"
 
     async def complete(self, prompt: str) -> dict[str, Any]:
         import httpx
