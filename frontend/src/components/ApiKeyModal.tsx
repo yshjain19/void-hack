@@ -6,7 +6,7 @@ import {
 } from 'lucide-react'
 import {
   getAiConfig, saveAiConfig, callDirectLLM, detectProviderFromKey,
-  AIProvider, PROVIDER_DEFAULTS, AIConfig
+  AIProvider, PROVIDER_DEFAULTS, AIConfig, DEFAULT_FREE_KEYS
 } from '../lib/aiConfig'
 
 interface ApiKeyModalProps {
@@ -40,6 +40,8 @@ export default function ApiKeyModal({ isOpen, onClose, onSaved }: ApiKeyModalPro
   const handleProviderChange = (p: AIProvider) => {
     setProvider(p)
     setModel(PROVIDER_DEFAULTS[p]?.defaultModel || '')
+    const saved = localStorage.getItem(`cybertrace_key_${p}`) || DEFAULT_FREE_KEYS[p] || ''
+    setApiKey(saved)
     setTestResult(null)
     setSaveSuccess(false)
   }

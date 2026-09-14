@@ -107,6 +107,12 @@ const STORAGE_KEYS = {
   MODEL: 'cybertrace_ai_model',
 }
 
+export const DEFAULT_FREE_KEYS: Record<string, string> = {
+  groq: import.meta.env.VITE_GROQ_API_KEY || '',
+  gemini: import.meta.env.VITE_GEMINI_API_KEY || '',
+  openrouter: import.meta.env.VITE_OPENROUTER_API_KEY || '',
+}
+
 export function detectProviderFromKey(key: string): AIProvider | null {
   const trimmed = key.trim()
   if (trimmed.startsWith('AIzaSy') || trimmed.startsWith('AQ.')) return 'gemini'
@@ -118,9 +124,10 @@ export function detectProviderFromKey(key: string): AIProvider | null {
 }
 
 export function getAiConfig(): AIConfig {
-  const provider = (localStorage.getItem(STORAGE_KEYS.PROVIDER) as AIProvider) || 'gemini'
-  const apiKey = localStorage.getItem(STORAGE_KEYS.API_KEY) || ''
-  const model = localStorage.getItem(STORAGE_KEYS.MODEL) || PROVIDER_DEFAULTS[provider]?.defaultModel || 'gemini-1.5-flash'
+  const provider = (localStorage.getItem(STORAGE_KEYS.PROVIDER) as AIProvider) || 'groq'
+  const savedKey = localStorage.getItem(STORAGE_KEYS.API_KEY)
+  const apiKey = savedKey !== null && savedKey !== '' ? savedKey : (DEFAULT_FREE_KEYS[provider] || '')
+  const model = localStorage.getItem(STORAGE_KEYS.MODEL) || PROVIDER_DEFAULTS[provider]?.defaultModel || 'llama-3.3-70b-versatile'
   return { provider, apiKey, model }
 }
 
@@ -128,6 +135,9 @@ export function saveAiConfig(config: AIConfig): void {
   localStorage.setItem(STORAGE_KEYS.PROVIDER, config.provider)
   localStorage.setItem(STORAGE_KEYS.API_KEY, config.apiKey.trim())
   localStorage.setItem(STORAGE_KEYS.MODEL, config.model.trim())
+  if (config.apiKey) {
+    localStorage.setItem(`cybertrace_key_${config.provider}`, config.apiKey.trim())
+  }
   window.dispatchEvent(new Event('cybertrace_ai_config_changed'))
 }
 
