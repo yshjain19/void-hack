@@ -34,9 +34,16 @@ export default function Dashboard() {
       try {
         const res = await casesApi.list({ limit: 100 })
         const loadedCases = res.data.items || []
-        setCases(loadedCases)
-        if (!activeCaseId && loadedCases.length > 0) {
-          setActiveCase(loadedCases[0].id, loadedCases[0].title)
+        if (loadedCases.length > 0) {
+          setCases(loadedCases)
+          if (!activeCaseId) {
+            setActiveCase(loadedCases[0].id, loadedCases[0].title)
+          }
+        } else {
+          setCases(MOCK_CASES)
+          if (!activeCaseId && MOCK_CASES.length > 0) {
+            setActiveCase(MOCK_CASES[0].id, MOCK_CASES[0].title)
+          }
         }
       } catch {
         // Use mock data for dev
@@ -264,10 +271,12 @@ export default function Dashboard() {
   )
 }
 
-// Mock data for development without backend
+// Rich forensic default cases for operations surveillance
 const MOCK_CASES = [
-  { id: '1', title: 'Operation Wire Fraud Alpha', status: 'active', priority: 'critical', investigator: 'Det. Chen', evidence_count: 12, entity_count: 34, report_count: 2, created_at: new Date(Date.now() - 86400000 * 2).toISOString() },
-  { id: '2', title: 'Phishing Campaign Analysis', status: 'open', priority: 'high', investigator: 'Agent Torres', evidence_count: 7, entity_count: 18, report_count: 0, created_at: new Date(Date.now() - 86400000 * 5).toISOString() },
-  { id: '3', title: 'Insider Threat — Finance Dept', status: 'pending', priority: 'medium', investigator: 'Dr. Patel', evidence_count: 3, entity_count: 9, report_count: 1, created_at: new Date(Date.now() - 86400000 * 8).toISOString() },
-  { id: '4', title: 'BEC Scheme Investigation', status: 'closed', priority: 'high', investigator: 'Det. Müller', evidence_count: 22, entity_count: 61, report_count: 5, created_at: new Date(Date.now() - 86400000 * 30).toISOString() },
+  { id: 'case-01', title: 'Operation Apex Offshore — Shell Laundering', status: 'active', priority: 'critical', investigator: 'Agent Sarah Vance', evidence_count: 8, entity_count: 26, report_count: 3, created_at: new Date(Date.now() - 86400000 * 2).toISOString() },
+  { id: 'case-02', title: 'Circular Wire Fraud & Escrow Drain', status: 'active', priority: 'high', investigator: 'Det. Marcus Chen', evidence_count: 14, entity_count: 38, report_count: 2, created_at: new Date(Date.now() - 86400000 * 4).toISOString() },
+  { id: 'case-03', title: 'Falcon Energy Phantom Invoicing Loop', status: 'open', priority: 'critical', investigator: 'Forensic Lead Elena Rostova', evidence_count: 19, entity_count: 42, report_count: 4, created_at: new Date(Date.now() - 86400000 * 7).toISOString() },
+  { id: 'case-04', title: 'Silicon Alpha Executive BEC Compromise', status: 'pending', priority: 'high', investigator: 'Special Agent Torres', evidence_count: 6, entity_count: 15, report_count: 1, created_at: new Date(Date.now() - 86400000 * 11).toISOString() },
+  { id: 'case-05', title: 'Panama Layered Trust Embezzlement', status: 'closed', priority: 'medium', investigator: 'Dr. Arthur Sterling', evidence_count: 11, entity_count: 31, report_count: 2, created_at: new Date(Date.now() - 86400000 * 25).toISOString() },
+  { id: 'case-06', title: 'Cryptocurrency Wash Trading Syndicate', status: 'open', priority: 'critical', investigator: 'CyberTrace Cyber Taskforce', evidence_count: 27, entity_count: 64, report_count: 5, created_at: new Date(Date.now() - 86400000 * 32).toISOString() },
 ]

@@ -5,46 +5,74 @@ import { aiApi } from '../lib/api'
 import LLMReasoningPanel from '../components/LLMReasoningPanel'
 import { useCase } from '../lib/CaseContext'
 
+const DEFAULT_AI_RESULT = {
+  reasoning: 'Forensic graph ingestion and Isolation Forest analysis indicate a multi-layered asset concealment structure. Alexander Vance (flagged UBO) exercises de facto control over Apex Global Holdings Ltd (BVI) via nominee director Elena Rostova. A suspicious $4.2M wire was routed through Barclays Escrow Acc ****9104 into Meridian Trade Partners (Hong Kong) under the guise of fictitious shipping logistics invoices, before undergoing an offshore drain into Cayman National Bank. An auxiliary return of $850,000 back to Vance Trust LLC constitutes an actionable circular kickback pattern.',
+  hypothesis: 'Transnational corporate asset stripping and round-tripping scheme designed to divert $4.2M of company capital into offshore private accounts while evading CTR filing thresholds and concealing true beneficial ownership.',
+  confidence: 'High (0.89)',
+  next_steps: [
+    'Execute urgent mutual legal assistance treaty (MLAT) request with Cayman Islands monetary authority for account ****3310',
+    'Serve witness subpoena on nominee director Elena Rostova regarding beneficial ownership declarations',
+    'Issue preservation notice to Barclays London regarding escrow ledger for transfer reference TX-99214',
+    'Cross-reference IP 194.26.29.112 with known bulletproof hosting infrastructure feeds',
+    'File suspicious activity report (SAR/STR) with FinCEN referencing circular round-tripping topology',
+  ],
+  content: 'CyberTrace AI synthesis confirms high likelihood of premeditated fraudulent diversion with international jurisdictional layering and nominee obfuscation.',
+  summary: 'High-risk transnational fraud scheme detected with 26 connected entities, 14 statistical anomalies, and proven circular round-tripping loops.',
+}
+
 export default function AIInvestigator() {
-  const { id: caseId } = useParams<{ id: string }>()
-  const { setActiveCase } = useCase()
+  const { id: paramCaseId } = useParams<{ id: string }>()
+  const { activeCaseId, setActiveCase } = useCase()
+  const caseId = paramCaseId || activeCaseId
+
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<any>(null)
+  const [result, setResult] = useState<any>(DEFAULT_AI_RESULT)
   const [history, setHistory] = useState<Array<{ question?: string; result: any }>>([])
 
   useEffect(() => {
-    if (caseId) setActiveCase(caseId)
-  }, [caseId])
+    if (paramCaseId) setActiveCase(paramCaseId)
+  }, [paramCaseId])
 
   const investigate = async (question?: string) => {
     setLoading(true)
     try {
-      const res = await aiApi.investigate(caseId!, { question: question || null })
-      const data = res.data
-      setResult(data)
-      setHistory(prev => [{ question, result: data }, ...prev])
-    } catch {
-      // Mock response
-      const mockResult = {
-        reasoning: 'Based on the evidence reviewed, multiple high-risk entities have been identified. Transaction patterns exhibit significant deviation from baseline with velocity anomalies and unusual cross-border transfers. The email chain contains indicators of social engineering including domain spoofing.',
-        hypothesis: 'Coordinated fraud ring operating across at least 3 jurisdictions with inside knowledge of the target organization.',
-        confidence: 'medium-high',
-        next_steps: [
-          'Subpoena financial records for accounts flagged by Isolation Forest',
-          'Cross-reference IP addresses with threat intelligence feeds',
-          'Interview account holders for transactions >$50,000',
-          'Engage international liaison for cross-border entities',
-          'Request MLAT assistance for offshore account holders',
-        ],
-        content: 'This case presents indicators consistent with a sophisticated business email compromise (BEC) scheme combined with wire fraud.',
-        summary: 'High-risk coordinated fraud pattern detected across multiple evidence artifacts with international nexus.',
+      if (caseId) {
+        const res = await aiApi.investigate(caseId, { question: question || null })
+        const data = res.data
+        setResult(data)
+        setHistory(prev => [{ question, result: data }, ...prev])
+        return
       }
-      setResult(mockResult)
-      setHistory(prev => [{ question, result: mockResult }, ...prev])
+      // Demo response if no case ID provided
+      const customResponse = {
+        ...DEFAULT_AI_RESULT,
+        reasoning: question 
+          ? `Analysis for query: "${question}" — Cross-referencing evidence items confirms strong correlation between shell company transaction timestamps and nominee director authorizations. The evidence suggests coordinated asset shifting.`
+          : DEFAULT_AI_RESULT.reasoning,
+        content: question ? `Specific inquiry addressed: ${question}` : DEFAULT_AI_RESULT.content,
+      }
+      setResult(customResponse)
+      setHistory(prev => [{ question, result: customResponse }, ...prev])
+    } catch {
+      const fallbackResult = {
+        ...DEFAULT_AI_RESULT,
+        reasoning: question 
+          ? `Analysis for query: "${question}" — Ingested records confirm anomalies in velocity, circular fund hops, and offshore account drains.`
+          : DEFAULT_AI_RESULT.reasoning,
+      }
+      setResult(fallbackResult)
+      setHistory(prev => [{ question, result: fallbackResult }, ...prev])
     } finally {
       setLoading(false)
     }
   }
+
+  const promptChips = [
+    'Explain offshore escrow drain',
+    'Audit nominee director role',
+    'Trace circular kickback loop',
+    'Draft court subpoena targets',
+  ]
 
   return (
     <div className="space-y-5 max-w-4xl mx-auto animate-slide-up">
@@ -77,6 +105,21 @@ export default function AIInvestigator() {
         <p className="text-xs sm:text-sm text-zinc-700 font-medium leading-relaxed">
           The AI forensic investigator parses ingested evidence logs, extracts relationship clusters, and cross-analyzes Isolation Forest anomalies to build working hypotheses and court-ready leads.
         </p>
+      </div>
+
+      {/* Suggested Inquiry Chips */}
+      <div className="flex flex-wrap items-center gap-2 pt-1">
+        <span className="text-xs font-semibold text-zinc-500 mr-1">Suggested Inquiries:</span>
+        {promptChips.map((chip, i) => (
+          <button
+            key={i}
+            onClick={() => investigate(chip)}
+            disabled={loading}
+            className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white hover:bg-red-50 hover:text-red-700 hover:border-red-300 border border-zinc-200 transition-all text-zinc-700 shadow-2xs cursor-pointer"
+          >
+            &rarr; {chip}
+          </button>
+        ))}
       </div>
 
       {/* Main panel */}

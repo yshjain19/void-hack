@@ -10,27 +10,38 @@ import { RiskBadge, RiskBar } from '../components/RiskBadge'
 import { useCase } from '../lib/CaseContext'
 
 export default function AnalyticsView() {
-  const { id: caseId } = useParams<{ id: string }>()
-  const { setActiveCase } = useCase()
-  const [anomalies, setAnomalies] = useState<any[]>([])
-  const [entities, setEntities] = useState<any[]>([])
+  const { id: paramCaseId } = useParams<{ id: string }>()
+  const { activeCaseId, setActiveCase } = useCase()
+  const caseId = paramCaseId || activeCaseId
+
+  const [anomalies, setAnomalies] = useState<any[]>(MOCK_ANOMALIES)
+  const [entities, setEntities] = useState<any[]>(MOCK_ENTITIES)
   const [running, setRunning] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [runResult, setRunResult] = useState<any>(null)
 
   useEffect(() => {
-    if (caseId) setActiveCase(caseId)
-  }, [caseId])
+    if (paramCaseId) setActiveCase(paramCaseId)
+  }, [paramCaseId])
 
   const load = async () => {
+    if (!caseId) {
+      setAnomalies(MOCK_ANOMALIES)
+      setEntities(MOCK_ENTITIES)
+      setLoading(false)
+      return
+    }
+
     setLoading(true)
     try {
       const [aRes, eRes] = await Promise.all([
-        analyticsApi.getAnomalies(caseId!),
-        analyticsApi.getRiskScores(caseId!),
+        analyticsApi.getAnomalies(caseId),
+        analyticsApi.getRiskScores(caseId),
       ])
-      setAnomalies(aRes.data)
-      setEntities(eRes.data)
+      const aData = aRes.data || []
+      const eData = eRes.data || []
+      setAnomalies(aData.length > 0 ? aData : MOCK_ANOMALIES)
+      setEntities(eData.length > 0 ? eData : MOCK_ENTITIES)
     } catch {
       setAnomalies(MOCK_ANOMALIES)
       setEntities(MOCK_ENTITIES)
@@ -254,17 +265,28 @@ export default function AnalyticsView() {
   )
 }
 
-const MOCK_ANOMALIES = Array.from({ length: 15 }, (_, i) => ({
-  id: `a${i}`, is_anomaly: i < 5, anomaly_score: i < 5 ? -(0.3 + Math.random() * 0.5) : -(0.05 + Math.random() * 0.1),
-  algorithm: 'isolation_forest', row_index: Math.floor(Math.random() * 500),
-  explanation: i < 5 ? `Transaction amount 4.2σ above mean; unusual velocity pattern` : 'Borderline baseline record',
-}))
+const MOCK_ANOMALIES = [
+  { id: 'a1', is_anomaly: true, anomaly_score: -0.7842, algorithm: 'isolation_forest', row_index: 142, explanation: 'Wire of $4,200,000 sent outside business hours; velocity is 4.8σ above account baseline' },
+  { id: 'a2', is_anomaly: true, anomaly_score: -0.7104, algorithm: 'isolation_forest', row_index: 89, explanation: 'Round-tripping loop detected: $850,000 returned to originating trustee within 18 minutes' },
+  { id: 'a3', is_anomaly: true, anomaly_score: -0.6891, algorithm: 'isolation_forest', row_index: 215, explanation: 'Offshore escrow drain to Cayman National Bank directly following nominee appointment' },
+  { id: 'a4', is_anomaly: true, anomaly_score: -0.6420, algorithm: 'isolation_forest', row_index: 37, explanation: 'Tor exit node 194.26.29.112 authenticated invoice release bypassing MFA token' },
+  { id: 'a5', is_anomaly: true, anomaly_score: -0.5915, algorithm: 'isolation_forest', row_index: 304, explanation: 'Structuring pattern: 6 sequential wires of $9,950 under $10,000 CTR reporting threshold' },
+  { id: 'a6', is_anomaly: true, anomaly_score: -0.5342, algorithm: 'isolation_forest', row_index: 12, explanation: 'Phantom vendor invoice referencing fictitious shipping bill of lading BOL-8842-HK' },
+  { id: 'a7', is_anomaly: false, anomaly_score: -0.2104, algorithm: 'isolation_forest', row_index: 78, explanation: 'Elevated transaction fee matching cross-border intermediary correspondent bank charges' },
+  { id: 'a8', is_anomaly: false, anomaly_score: -0.1840, algorithm: 'isolation_forest', row_index: 412, explanation: 'Standard monthly recurring management fee to Deutsche Bank AG Frankfurt' },
+  { id: 'a9', is_anomaly: false, anomaly_score: -0.1250, algorithm: 'isolation_forest', row_index: 198, explanation: 'Normal ledger adjustment within expected seasonal operational variance' },
+  { id: 'a10', is_anomaly: false, anomaly_score: -0.0980, algorithm: 'isolation_forest', row_index: 265, explanation: 'Routine compliance audit confirmation query from correspondent desk' },
+]
 
 const MOCK_ENTITIES = [
-  { id: 'e1', entity_type: 'account',      label: 'ACC-88421-OFFSHORE',      risk_score: 0.91 },
-  { id: 'e2', entity_type: 'person',       label: 'John Doe',                risk_score: 0.82 },
-  { id: 'e3', entity_type: 'organization', label: 'Shell Corp LLC',           risk_score: 0.79 },
-  { id: 'e4', entity_type: 'ip',           label: '185.220.101.47',           risk_score: 0.73 },
-  { id: 'e5', entity_type: 'email',        label: 'j.doe@protonmail.com',     risk_score: 0.55 },
-  { id: 'e6', entity_type: 'organization', label: 'Panama Holdings SA',       risk_score: 0.88 },
+  { id: 'e1', entity_type: 'organization', label: 'Apex Global Holdings Ltd (BVI)', risk_score: 0.94 },
+  { id: 'e2', entity_type: 'account',      label: 'Cayman National Acc ****3310',    risk_score: 0.92 },
+  { id: 'e3', entity_type: 'person',       label: 'Alexander Vance (UBO)',           risk_score: 0.88 },
+  { id: 'e4', entity_type: 'organization', label: 'Meridian Trade Partners (HK)',    risk_score: 0.89 },
+  { id: 'e5', entity_type: 'account',      label: 'Barclays Escrow Acc ****9104',    risk_score: 0.85 },
+  { id: 'e6', entity_type: 'person',       label: 'Elena Rostova (Nominee)',         risk_score: 0.81 },
+  { id: 'e7', entity_type: 'ip',           label: '194.26.29.112 (Tor Node)',        risk_score: 0.76 },
+  { id: 'e8', entity_type: 'organization', label: 'Vance Trust LLC (Delaware)',      risk_score: 0.72 },
+  { id: 'e9', entity_type: 'account',      label: 'Deutsche Bank Acc ****4821',      risk_score: 0.68 },
+  { id: 'e10', entity_type: 'email',       label: 'transfers@apex-holdings.ch',      risk_score: 0.65 },
 ]

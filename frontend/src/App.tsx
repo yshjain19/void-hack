@@ -49,9 +49,9 @@ function AppLayout() {
 
             {/* Direct Tool Routes */}
             <Route path="/graph" element={<GraphView />} />
-            <Route path="/analytics" element={<ToolRedirect tool="analytics" title="Analytics" />} />
-            <Route path="/ai" element={<ToolRedirect tool="ai" title="AI Investigator" />} />
-            <Route path="/reports" element={<ToolRedirect tool="reports" title="Reports" />} />
+            <Route path="/analytics" element={<AnalyticsView />} />
+            <Route path="/ai" element={<AIInvestigator />} />
+            <Route path="/reports" element={<ReportsView />} />
 
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>

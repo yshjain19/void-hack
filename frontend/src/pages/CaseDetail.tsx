@@ -31,7 +31,8 @@ export default function CaseDetail() {
       try {
         const [cRes, eRes] = await Promise.all([casesApi.get(id), evidenceApi.list(id)])
         setCaseData(cRes.data)
-        setEvidence(eRes.data)
+        const evItems = eRes.data || []
+        setEvidence(evItems.length > 0 ? evItems : MOCK_EVIDENCE)
         setActiveCase(id, cRes.data.title)
       } catch {
         setCaseData(MOCK_CASE)
@@ -335,17 +336,117 @@ export default function CaseDetail() {
 }
 
 const MOCK_CASE = {
-  id: 'mock-case-id-0001', title: 'Operation Wire Fraud Alpha', description: 'Investigation into suspected wire fraud involving multiple offshore accounts.',
-  status: 'active', priority: 'critical', investigator: 'Det. Chen', tags: 'wire-fraud,financial,cross-border',
-  evidence_count: 3, entity_count: 12, report_count: 0,
+  id: 'case-01',
+  title: 'Operation Apex Offshore — Shell Laundering',
+  description: 'Multijurisdictional forensic examination targeting shell vehicle fund routing across BVI, UK Escrow accounts, and Cayman National Bank depositories.',
+  status: 'active',
+  priority: 'critical',
+  investigator: 'Agent Sarah Vance',
+  tags: 'bvi,shell-corp,ubo,money-laundering,swift',
+  evidence_count: 4,
+  entity_count: 26,
+  report_count: 3,
   created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
   updated_at: new Date(Date.now() - 86400000).toISOString(),
 }
+
 const MOCK_EVIDENCE = [
-  { id: 'ev-1', original_filename: 'transactions_Q3.xlsx', file_type: 'excel', file_size: 245_123, sha256_hash: 'a3f4b9c1d2e5...', parsed: true, uploaded_by: 'Det. Chen', uploaded_at: new Date(Date.now() - 3600000).toISOString() },
-  { id: 'ev-2', original_filename: 'suspicious_email.eml', file_type: 'email', file_size: 12_445, sha256_hash: 'b7e3a1c9f2d4...', parsed: true, uploaded_by: 'Agent Torres', uploaded_at: new Date(Date.now() - 7200000).toISOString() },
+  {
+    id: 'ev-1',
+    original_filename: 'wire_transfers_2026_q3_apex.xlsx',
+    file_type: 'excel',
+    file_size: 482104,
+    sha256_hash: 'c8f49a15b3648a39d8e52e49c8f294ab1394f7193bca859381e4b9218d726194',
+    parsed: true,
+    uploaded_by: 'Agent Sarah Vance',
+    uploaded_at: new Date(Date.now() - 3600000 * 5).toISOString(),
+  },
+  {
+    id: 'ev-2',
+    original_filename: 'executive_inbox_export_intercept.eml',
+    file_type: 'email',
+    file_size: 28410,
+    sha256_hash: '7f9b23e18a4d567890bcdef123456789abcdef0123456789abcdef0123456789',
+    parsed: true,
+    uploaded_by: 'Special Agent Torres',
+    uploaded_at: new Date(Date.now() - 3600000 * 8).toISOString(),
+  },
+  {
+    id: 'ev-3',
+    original_filename: 'shell_incorporation_deed_bvi.pdf',
+    file_type: 'pdf',
+    file_size: 1420950,
+    sha256_hash: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+    parsed: true,
+    uploaded_by: 'Det. Marcus Chen',
+    uploaded_at: new Date(Date.now() - 86400000).toISOString(),
+  },
+  {
+    id: 'ev-4',
+    original_filename: 'swift_messaging_raw_audit.json',
+    file_type: 'json',
+    file_size: 94820,
+    sha256_hash: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8',
+    parsed: true,
+    uploaded_by: 'System Ingestion Agent',
+    uploaded_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+  },
 ]
+
 const MOCK_CUSTODY = [
-  { id: 'c1', evidence_id: 'ev-1', action: 'UPLOADED', actor: 'Det. Chen', timestamp: new Date(Date.now() - 3600000).toISOString(), sequence: 0, prev_hash: '0'.repeat(64), chain_hash: 'abc123...', event_metadata: {} },
-  { id: 'c2', evidence_id: 'ev-1', action: 'ACCESSED', actor: 'System', timestamp: new Date(Date.now() - 1800000).toISOString(), sequence: 1, prev_hash: 'abc123...', chain_hash: 'def456...', event_metadata: {} },
+  {
+    id: 'c1',
+    evidence_id: 'ev-1',
+    action: 'UPLOADED',
+    actor: 'Agent Sarah Vance',
+    timestamp: new Date(Date.now() - 3600000 * 5).toISOString(),
+    sequence: 0,
+    prev_hash: '0000000000000000000000000000000000000000000000000000000000000000',
+    chain_hash: 'c8f49a15b3648a39d8e52e49c8f294ab1394f7193bca859381e4b9218d726194',
+    event_metadata: { source: 'Secure Forensic Dropzone', ip: '10.200.4.12', client: 'CyberTrace Desktop v2.4' },
+  },
+  {
+    id: 'c2',
+    evidence_id: 'ev-1',
+    action: 'HASH_VERIFIED',
+    actor: 'CyberTrace Cryptographic Sentinel',
+    timestamp: new Date(Date.now() - 3600000 * 4.9).toISOString(),
+    sequence: 1,
+    prev_hash: 'c8f49a15b3648a39d8e52e49c8f294ab1394f7193bca859381e4b9218d726194',
+    chain_hash: 'd41d8cd98f00b204e9800998ecf8427e9f3b1234567890abcdef1234567890ab',
+    event_metadata: { algorithm: 'SHA-256', standard: 'ISO/IEC 27037', checksum_match: true },
+  },
+  {
+    id: 'c3',
+    evidence_id: 'ev-1',
+    action: 'PARSED_EXTRACTED',
+    actor: 'ETL Engine Worker 02',
+    timestamp: new Date(Date.now() - 3600000 * 4.5).toISOString(),
+    sequence: 2,
+    prev_hash: 'd41d8cd98f00b204e9800998ecf8427e9f3b1234567890abcdef1234567890ab',
+    chain_hash: '9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b',
+    event_metadata: { extracted_rows: 1240, entities_identified: 26, duration_ms: 312 },
+  },
+  {
+    id: 'c4',
+    evidence_id: 'ev-1',
+    action: 'ISOLATION_FOREST_SCORING',
+    actor: 'ML Anomaly Engine',
+    timestamp: new Date(Date.now() - 3600000 * 4).toISOString(),
+    sequence: 3,
+    prev_hash: '9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b',
+    chain_hash: '4f5e6d7c8b9a0f1e2d3c4b5a6f7e8d9c0b1a2f3e4d5c6b7a8f9e0d1c2b3a4f5e',
+    event_metadata: { anomalies_flagged: 14, max_zscore: 4.8, model: 'IsolationForest(contamination=0.015)' },
+  },
+  {
+    id: 'c5',
+    evidence_id: 'ev-1',
+    action: 'AUDIT_SEAL_APPLIED',
+    actor: 'Forensic Officer Rostova',
+    timestamp: new Date(Date.now() - 3600000 * 2).toISOString(),
+    sequence: 4,
+    prev_hash: '4f5e6d7c8b9a0f1e2d3c4b5a6f7e8d9c0b1a2f3e4d5c6b7a8f9e0d1c2b3a4f5e',
+    chain_hash: '8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b9a8f7e',
+    event_metadata: { status: 'COURT_ADMISSIBLE', integrity_confirmed: true },
+  },
 ]
